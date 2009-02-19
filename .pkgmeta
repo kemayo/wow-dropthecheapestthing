@@ -1,0 +1,14 @@
+externals:
+    libs/LibStub:
+        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+        tag: latest
+    libs/CallbackHandler-1.0:
+        url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk/CallbackHandler-1.0
+        tag: latest
+    libs/AceDB-3.0:
+		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+		tag: latest
+	libs/ItemPrice-1.1
+		url: svn://svn.wowace.com/wow/itemprice-1-1/mainline/trunk
+		tag: latest
+
