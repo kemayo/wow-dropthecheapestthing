@@ -99,8 +99,9 @@ function frame:BAG_UPDATE(updated_bag)
 		end
 	end
 	
+	if #junk_slots == 0 then return end
 	table.sort(junk_slots, slot_sorter)
-	Dropper.text = pretty_bagslot_name(junk_slots[1])
+	Dropper.text = pretty_bagslot_name(junk_slots[1]) .. ' ' .. copper_to_pretty_money(slot_values[junk_slots[1]])
 end
 
 -- The rest is utility functions used above:
