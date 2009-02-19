@@ -6,7 +6,7 @@ local Dropper = _G.LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 	label = "Drop",
 })
 
-local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name
+local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot
 
 local junk_slots = {}
 local slot_contents = {}
@@ -14,40 +14,35 @@ local slot_counts = {}
 local slot_values = {}
 
 function Dropper:OnTooltipShow()
-	self:AddLine("Junk To Drop")
-	local total = 0
-	for _, bagslot in ipairs(junk_slots) do
-		self:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]), nil, nil, nil, 1, 1, 1)
-		total = total + slot_values[bagslot]
+	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
+	if #junk_slots == 0 then
+		self:AddLine("Nothing")
+		return
+	else
+		local total = 0
+		for _, bagslot in ipairs(junk_slots) do
+			self:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]), nil, nil, nil, 1, 1, 1)
+			total = total + slot_values[bagslot]
+		end
+		self:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
 	end
-	self:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
-	self:AddLine("|cffeda55fShift-Click|r to delete the cheapest item.", 0.2, 1, 0.2, 1)
+	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 end
 
 function Dropper:OnClick()
 	if #junk_slots == 0 then return end
 	if not IsShiftKeyDown() then return end
-	local bagslot = junk_slots[1]
-	local bag, slot = decode_bagslot(bagslot)
-	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
-		DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
-	end
-	if CursorHasItem() then
-		DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
-	end
-	
-	if MerchantFrame:IsVisible() then
-		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
-		UseContainerItem(bag, slot)
-	else
-		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
-		PickupContainerItem(bag, slot)
-		DeleteCursorItem()
-	end
+	drop_bagslot(junk_slots[1])
 end
 
 local db
-local frame = CreateFrame("Frame")
+local frame = CreateFrame("Frame", "DropTheCheapestThing")
+frame.dataobject = Dropper
+frame.junk_slots = junk_slots
+frame.slot_contents = slot_contents
+frame.slot_counts = slot_counts
+frame.slot_values = slot_values
+
 frame:SetScript("OnEvent", function(self, event, ...)
 	if self[event] then self[event](self, event, ...) end
 end)
@@ -99,7 +94,10 @@ function frame:BAG_UPDATE(updated_bag)
 		end
 	end
 	
-	if #junk_slots == 0 then return end
+	if #junk_slots == 0 then
+		Dropper.text = ''
+		return
+	end
 	table.sort(junk_slots, slot_sorter)
 	Dropper.text = pretty_bagslot_name(junk_slots[1]) .. ' ' .. copper_to_pretty_money(slot_values[junk_slots[1]])
 end
@@ -157,4 +155,29 @@ end
 
 function encode_bagslot(bag, slot) return (bag*100) + slot end
 function decode_bagslot(int) return math.floor(int/100), int % 100 end
+frame.encode_bagslot = encode_bagslot
+frame.decode_bagslot = decode_bagslot
+
+function drop_bagslot(bagslot, sell_only)
+	local bag, slot = decode_bagslot(bagslot)
+	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
+		DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+	end
+	if CursorHasItem() then
+		DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+	end
+	if sell_only and not MerchantFrame:IsVisible() then
+		DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+	end
+
+	if MerchantFrame:IsVisible() then
+		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(slot_values[junk_slots[1]]))
+		UseContainerItem(bag, slot)
+	else
+		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
+		PickupContainerItem(bag, slot)
+		DeleteCursorItem()
+	end
+end
+frame.drop_bagslot = drop_bagslot
 
