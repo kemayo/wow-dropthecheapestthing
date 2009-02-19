@@ -8,7 +8,7 @@ externals:
     libs/AceDB-3.0:
 		url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
 		tag: latest
-	libs/ItemPrice-1.1
+	libs/ItemPrice-1.1:
 		url: svn://svn.wowace.com/wow/itemprice-1-1/mainline/trunk
 		tag: latest
 
