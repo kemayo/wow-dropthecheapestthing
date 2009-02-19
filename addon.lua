@@ -21,10 +21,12 @@ function Dropper:OnTooltipShow()
 		total = total + slot_values[bagslot]
 	end
 	self:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
+	self:AddLine("|cffeda55fShift-Click|r to delete the cheapest item.", 0.2, 1, 0.2, 1)
 end
 
 function Dropper:OnClick()
 	if #junk_slots == 0 then return end
+	if not IsShiftKeyDown() then return end
 	local bagslot = junk_slots[1]
 	local bag, slot = decode_bagslot(bagslot)
 	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
@@ -72,6 +74,7 @@ function frame:PLAYER_LEAVING_WORLD()
 	frame:UnregisterEvent("BAG_UPDATE")
 end
 
+-- I should throttle this -- BAG_UPDATE can be a busy event...
 function frame:BAG_UPDATE(updated_bag)
 	table.wipe(junk_slots)
 	table.wipe(slot_contents)
@@ -84,7 +87,7 @@ function frame:BAG_UPDATE(updated_bag)
 		-- _quality_ is -1 if the item requires "special handling"; stackable, quest, whatever
 		-- I'm not actually sure how best to handle this
 		if quality == -1 then quality = select(3, GetItemInfo(link)) end
-		if quality <= db.profile.threshold then
+		if quality and quality <= db.profile.threshold then
 			local value = ItemPrice:GetPrice(link)
 			if value and value > 0 then
 				local bagslot = encode_bagslot(bag, slot)
