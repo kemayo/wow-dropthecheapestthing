@@ -13,3 +13,5 @@ libs\AceDB-3.0\AceDB-3.0.xml
 libs\ItemPrice-1.1\lib.xml
 
 addon.lua
+button.lua
+

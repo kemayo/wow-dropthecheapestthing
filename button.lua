@@ -1,0 +1,53 @@
+local core = DropTheCheapestThing
+if not core then return end
+
+local button_size = 32
+
+local button = CreateFrame("Button", nil, MerchantFrame)
+button:SetWidth(button_size)
+button:SetHeight(button_size)
+button:SetPoint("TOPRIGHT", MerchantFrame, "TOPRIGHT", -44, -38)
+button:SetFrameStrata("DIALOG")
+button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
+
+local texture = button:CreateTexture(nil, "BACKGROUND")
+texture:SetTexture("Interface\\Icons\\INV_Egg_04")
+texture:SetAllPoints(button)
+
+local texture = button:CreateTexture()
+texture:SetTexture("Interface\\Buttons\\ButtonHilight-Square")
+texture:SetAllPoints(button)
+button:SetHighlightTexture(texture)
+
+local texture = button:CreateTexture()
+texture:SetTexture("Interface\\Icons\\INV_Egg_04")
+texture:SetAllPoints(button)
+texture:SetDesaturated(true)
+button:SetDisabledTexture(texture)
+
+button:SetScript("OnEnter", function()
+	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+	core.dataobject.OnTooltipShow(GameTooltip)
+	GameTooltip:Show()
+end)
+button:SetScript("OnLeave", function()
+	GameTooltip:Hide()
+end)
+
+button:SetScript("OnClick", function()
+	for _, bagslot in ipairs(core.junk_slots) do
+		core.drop_bagslot(bagslot, true)
+	end
+	button:Disable()
+end)
+
+button:RegisterEvent("MERCHANT_SHOW")
+--button:RegisterEvent( "MERCHANT_CLOSED")
+button:SetScript("OnEvent", function(event)
+	if #core.junk_slots > 0 then
+		button:Enable()
+	else
+		button:Disable()
+	end
+end)
+
