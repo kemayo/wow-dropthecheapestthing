@@ -36,11 +36,11 @@ function Dropper:OnClick()
 	
 	if MerchantFrame:IsVisible() then
 		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
-		--UseContainerItem(bag, slot)
+		UseContainerItem(bag, slot)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
 		PickupContainerItem(bag, slot)
-		--DeleteCursorItem()
+		DeleteCursorItem()
 	end
 end
 
