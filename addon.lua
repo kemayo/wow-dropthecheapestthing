@@ -76,20 +76,22 @@ function frame:BAG_UPDATE(updated_bag)
 	table.wipe(slot_counts)
 	table.wipe(slot_values)
 
-	for _, bag, slot in iterate_bags() do
-		local link = GetContainerItemLink(bag, slot)
-		local _, count, _, quality = GetContainerItemInfo(bag, slot)
-		-- _quality_ is -1 if the item requires "special handling"; stackable, quest, whatever
-		-- I'm not actually sure how best to handle this
-		if quality == -1 then quality = select(3, GetItemInfo(link)) end
-		if quality and quality <= db.profile.threshold then
-			local value = ItemPrice:GetPrice(link)
-			if value and value > 0 then
-				local bagslot = encode_bagslot(bag, slot)
-				table.insert(junk_slots, bagslot)
-				slot_contents[bagslot] = link
-				slot_counts[bagslot] = count
-				slot_values[bagslot] = value * count
+	for bag = 0, NUM_BAG_SLOTS do
+		for slot = 1, GetContainerNumSlots(bag) do
+			local link = GetContainerItemLink(bag, slot)
+			local _, count, _, quality = GetContainerItemInfo(bag, slot)
+			-- _quality_ is -1 if the item requires "special handling"; stackable, quest, whatever
+			-- I'm not actually sure how best to handle this
+			if quality == -1 then quality = select(3, GetItemInfo(link)) end
+			if quality and quality <= db.profile.threshold then
+				local value = ItemPrice:GetPrice(link)
+				if value and value > 0 then
+					local bagslot = encode_bagslot(bag, slot)
+					table.insert(junk_slots, bagslot)
+					slot_contents[bagslot] = link
+					slot_counts[bagslot] = count
+					slot_values[bagslot] = value * count
+				end
 			end
 		end
 	end
@@ -103,31 +105,6 @@ function frame:BAG_UPDATE(updated_bag)
 end
 
 -- The rest is utility functions used above:
-
-local player_bags = {}
-for i = 0, NUM_BAG_SLOTS do
-	table.insert(player_bags, i)
-end
-local function bagiter(baglist, i)
-	i = i + 1
-	local step = 1
-	for _,bag in ipairs(baglist) do
-		local slots = GetContainerNumSlots(bag)
-		if i > slots + step then
-			step = step + slots
-		else
-			for slot=1, slots do
-				if step == i then
-					return i, bag, slot
-				end
-				step = step + 1
-			end
-		end
-	end
-end
-function iterate_bags()
-	return bagiter, player_bags, 0
-end
 
 function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
 
