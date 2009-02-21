@@ -6,7 +6,7 @@ local Dropper = _G.LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 	label = "Drop",
 })
 
-local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot
+local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip
 
 local junk_slots = {}
 local slot_contents = {}
@@ -15,17 +15,6 @@ local slot_values = {}
 
 function Dropper:OnTooltipShow()
 	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
-	if #junk_slots == 0 then
-		self:AddLine("Nothing")
-		return
-	else
-		local total = 0
-		for _, bagslot in ipairs(junk_slots) do
-			self:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]), nil, nil, nil, 1, 1, 1)
-			total = total + slot_values[bagslot]
-		end
-		self:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
-	end
 	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 end
 
@@ -129,6 +118,21 @@ function copper_to_pretty_money(c)
 		return ("%d|cffeda55fc|r"):format(c%100)
 	end
 end
+
+function add_junk_to_tooltip(tooltip)
+	if #junk_slots == 0 then
+		tooltip:AddLine("Nothing")
+		return
+	else
+		local total = 0
+		for _, bagslot in ipairs(junk_slots) do
+			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]), nil, nil, nil, 1, 1, 1)
+			total = total + slot_values[bagslot]
+		end
+		tooltip:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
+	end
+end
+frame.add_junk_to_tooltip = add_junk_to_tooltip
 
 function encode_bagslot(bag, slot) return (bag*100) + slot end
 function decode_bagslot(int) return math.floor(int/100), int % 100 end
