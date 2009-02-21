@@ -15,6 +15,7 @@ local slot_values = {}
 
 function Dropper:OnTooltipShow()
 	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
+	add_junk_to_tooltip(self)
 	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 end
 

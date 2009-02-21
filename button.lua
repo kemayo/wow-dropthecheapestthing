@@ -27,6 +27,7 @@ button:SetDisabledTexture(texture)
 
 button:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
+	GameTooltip:AddLine("Junk To Sell")
 	core.add_junk_to_tooltip(GameTooltip)
 	GameTooltip:AddLine("|cffeda55fClick|r to sell everything.", 0.2, 1, 0.2, 1)
 	GameTooltip:Show()
