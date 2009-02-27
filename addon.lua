@@ -44,6 +44,7 @@ function frame:ADDON_LOADED(event, name)
 			threshold = 0, -- items above this quality won't even be considered
 		},
 	})
+	frame.db = db
 	frame:UnregisterEvent("ADDON_LOADED")
 	frame:RegisterEvent("PLAYER_LEAVING_WORLD")
 	if IsLoggedIn() then
