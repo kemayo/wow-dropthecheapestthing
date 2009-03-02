@@ -6,7 +6,7 @@ local Dropper = _G.LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 	label = "Drop",
 })
 
-local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip
+local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id
 
 local junk_slots = {}
 local slot_contents = {}
@@ -32,6 +32,7 @@ frame.junk_slots = junk_slots
 frame.slot_contents = slot_contents
 frame.slot_counts = slot_counts
 frame.slot_values = slot_values
+frame.events = LibStub("CallbackHandler-1.0"):New(frame)
 
 frame:SetScript("OnEvent", function(self, event, ...)
 	if self[event] then self[event](self, event, ...) end
@@ -42,15 +43,16 @@ function frame:ADDON_LOADED(event, name)
 	db = LibStub("AceDB-3.0"):New("DropTheCheapestThingDB", {
 		profile = {
 			threshold = 0, -- items above this quality won't even be considered
+			always_consider = {},
+			never_consider = {},
 		},
 	})
 	frame.db = db
 	frame:UnregisterEvent("ADDON_LOADED")
+	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame:RegisterEvent("PLAYER_LEAVING_WORLD")
 	if IsLoggedIn() then
 		self:PLAYER_ENTERING_WORLD()
-	else
-		frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
 end
 function frame:PLAYER_ENTERING_WORLD()
@@ -70,11 +72,14 @@ function frame:BAG_UPDATE(updated_bag)
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
 			local link = GetContainerItemLink(bag, slot)
+			local itemid = link_to_id(link)
 			local _, count, _, quality = GetContainerItemInfo(bag, slot)
 			-- _quality_ is -1 if the item requires "special handling"; stackable, quest, whatever
-			-- I'm not actually sure how best to handle this
+			-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
+			-- whites and above could have quest-item issues. Though I suppose quest items don't have
+			-- vendor values, so...
 			if quality == -1 then quality = select(3, GetItemInfo(link)) end
-			if quality and quality <= db.profile.threshold then
+			if (not db.profile.never_consider[itemid]) and (db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold) then
 				local value = ItemPrice:GetPrice(link)
 				if value and value > 0 then
 					local bagslot = encode_bagslot(bag, slot)
@@ -98,6 +103,9 @@ end
 -- The rest is utility functions used above:
 
 function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
+
+function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
+frame.link_to_id = link_to_id
 
 function pretty_bagslot_name(bagslot)
 	if not bagslot then return "???" end
