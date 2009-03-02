@@ -2,6 +2,7 @@ local _G = _G
 local ItemPrice = LibStub("ItemPrice-1.1")
 
 local Dropper = _G.LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestThing", {
+	type = "data source",
 	icon = "Interface\\Icons\\INV_Misc_Bag_22.blp",
 	label = "Drop",
 })
@@ -67,6 +68,8 @@ function frame:BAG_UPDATE(updated_bag)
 	table.wipe(slot_counts)
 	table.wipe(slot_values)
 
+	local total = 0
+
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
 			local link = GetContainerItemLink(bag, slot)
@@ -82,6 +85,7 @@ function frame:BAG_UPDATE(updated_bag)
 					slot_contents[bagslot] = link
 					slot_counts[bagslot] = count
 					slot_values[bagslot] = value * count
+					total = total + slot_values[bagslot]
 				end
 			end
 		end
@@ -92,7 +96,7 @@ function frame:BAG_UPDATE(updated_bag)
 		return
 	end
 	table.sort(junk_slots, slot_sorter)
-	Dropper.text = pretty_bagslot_name(junk_slots[1]) .. ' ' .. copper_to_pretty_money(slot_values[junk_slots[1]])
+	Dropper.text = #junk_slots .. ' items, ' .. copper_to_pretty_money(total)
 end
 
 -- The rest is utility functions used above:
