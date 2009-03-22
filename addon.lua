@@ -158,10 +158,10 @@ function drop_bagslot(bagslot, sell_only)
 	end
 
 	if MerchantFrame:IsVisible() then
-		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(slot_values[junk_slots[1]]))
+		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(slot_values[bagslot]))
 		UseContainerItem(bag, slot)
 	else
-		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[junk_slots[1]]))
+		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[bagslot]))
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
 	end
