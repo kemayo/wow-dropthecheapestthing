@@ -1,5 +1,4 @@
-local core = DropTheCheapestThing
-if not core then return end
+local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
 
 local button_size = 32
 
