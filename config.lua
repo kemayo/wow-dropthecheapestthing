@@ -85,6 +85,26 @@ function module:OnInitialize()
 						min = 0, max = 7, step = 1,
 						order = 10,
 					},
+					ldbtext = {
+						type = "multiselect",
+						name = "Broker Text",
+						desc = "What to display as text for the broker icon.",
+						get = function(info, key)
+							return db.profile.ldbtext[key]
+						end,
+						set = function(info, key, v)
+							db.profile.ldbtext[key] = v
+							core:BAG_UPDATE()
+						end,
+						values = {
+							item = "Cheapest item",
+							itemcount = "Stack size of cheapest item",
+							itemprice = "Value of cheapest item",
+							junkcount = "Number of junk items",
+							totalprice = "Total value of junk",
+						},
+						order = 20,
+					},
 				},
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),

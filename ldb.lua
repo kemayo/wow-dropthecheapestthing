@@ -25,11 +25,23 @@ function Dropper:OnClick(button)
 	end
 end
 
+local WHITE = "|cffffffff"
+local END = "|r"
+
 core.RegisterCallback("LDB", "Junk_Update", function(callback, junk_count, total)
 	if junk_count == 0 then
 		Dropper.text = ''
 		return
 	end
-	Dropper.text = junk_count .. ' items, ' .. core.copper_to_pretty_money(total)
+	local db = core.db.profile.ldbtext
+	--Dropper.text = junk_count .. ' items, ' .. core.copper_to_pretty_money(total)
+	Dropper.text = 
+		((db.item or db.itemcount) and core.pretty_bagslot_name(core.junk_slots[1], db.item, db.itemcount, db.itemcount) or '') ..
+		WHITE .. ((db.item and db.itemprice) and ' @ ' or '') .. END ..
+		WHITE .. (db.itemprice and core.copper_to_pretty_money(core.slot_values[core.junk_slots[1]]) or '') .. END ..
+		WHITE .. (((db.item or db.itemprice) and (db.junkcount or db.totalprice)) and ' : ' or '') .. END ..
+		WHITE .. (db.junkcount and junk_count or '') .. END ..
+		WHITE .. ((db.junkcount and db.totalprice) and ' @ ' or '') .. END ..
+		WHITE .. (db.totalprice and core.copper_to_pretty_money(total) or '') .. END
 end)
 

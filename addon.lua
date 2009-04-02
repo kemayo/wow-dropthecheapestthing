@@ -21,6 +21,13 @@ function core:OnInitialize()
 			threshold = 0, -- items above this quality won't even be considered
 			always_consider = {},
 			never_consider = {},
+			ldbtext = {
+				item = false,
+				itemcount = false,
+				junkcount = true,
+				itemprice = false,
+				totalprice = true,
+			},
 		},
 	})
 	self.db = db
@@ -70,26 +77,26 @@ function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
 function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
 core.link_to_id = link_to_id
 
-function pretty_bagslot_name(bagslot)
-	if not bagslot then return "???" end
+function pretty_bagslot_name(bagslot, show_name, show_count, force_count)
+	if not bagslot or not slot_contents[bagslot] then return "???" end
+	if show_name == nil then show_name = true end
+	if show_count == nil then show_count = true end
 	local link = slot_contents[bagslot]
 	local name = link:gsub("[%[%]]", "")
 	local max = select(8, GetItemInfo(link))
-	if max > 1 then
-		return ("%s %d/%d"):format(name, slot_counts[bagslot], max)
-	else
-		return name
-	end
+	return (show_name and link:gsub("[%[%]]", "") or '') ..
+		((show_name and show_count) and ' ' or '') ..
+		((show_count and (force_count or max > 1)) and (slot_counts[bagslot] .. '/' .. max) or '')
 end
 core.pretty_bagslot_name = pretty_bagslot_name
 
 function copper_to_pretty_money(c)
 	if c > 10000 then
-		return ("%d|cffffd700g|r%d|cffc7c7cfs|r%d|cffeda55fc|r"):format(c/10000, (c/100)%100, c%100)
+		return ("|cffffffff%d|r|cffffd700g|r|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format(c/10000, (c/100)%100, c%100)
 	elseif c > 100 then
-		return ("%d|cffc7c7cfs|r%d|cffeda55fc|r"):format((c/100)%100, c%100)
+		return ("|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format((c/100)%100, c%100)
 	else
-		return ("%d|cffeda55fc|r"):format(c%100)
+		return ("|cffffffff%d|r|cffeda55fc|r"):format(c%100)
 	end
 end
 core.copper_to_pretty_money = copper_to_pretty_money
