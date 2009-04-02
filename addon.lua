@@ -1,46 +1,21 @@
-local _G = _G
 local ItemPrice = LibStub("ItemPrice-1.1")
 
-local Dropper = _G.LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestThing", {
-	type = "data source",
-	icon = "Interface\\Icons\\INV_Misc_Bag_22.blp",
-	label = "Drop",
-})
+local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
-local iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id
+local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id
 
 local junk_slots = {}
 local slot_contents = {}
 local slot_counts = {}
 local slot_values = {}
 
-function Dropper:OnTooltipShow()
-	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
-	add_junk_to_tooltip(self)
-	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
-end
+core.junk_slots = junk_slots
+core.slot_contents = slot_contents
+core.slot_counts = slot_counts
+core.slot_values = slot_values
+core.events = LibStub("CallbackHandler-1.0"):New(core)
 
-function Dropper:OnClick()
-	if #junk_slots == 0 then return end
-	if not IsShiftKeyDown() then return end
-	drop_bagslot(junk_slots[1])
-end
-
-local db
-local frame = CreateFrame("Frame", "DropTheCheapestThing")
-frame.dataobject = Dropper
-frame.junk_slots = junk_slots
-frame.slot_contents = slot_contents
-frame.slot_counts = slot_counts
-frame.slot_values = slot_values
-frame.events = LibStub("CallbackHandler-1.0"):New(frame)
-
-frame:SetScript("OnEvent", function(self, event, ...)
-	if self[event] then self[event](self, event, ...) end
-end)
-frame:RegisterEvent("ADDON_LOADED")
-function frame:ADDON_LOADED(event, name)
-	if name ~= "DropTheCheapestThing" then return end
+function core:OnInitialize()
 	db = LibStub("AceDB-3.0"):New("DropTheCheapestThingDB", {
 		profile = {
 			threshold = 0, -- items above this quality won't even be considered
@@ -48,23 +23,11 @@ function frame:ADDON_LOADED(event, name)
 			never_consider = {},
 		},
 	})
-	frame.db = db
-	frame:UnregisterEvent("ADDON_LOADED")
-	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame:RegisterEvent("PLAYER_LEAVING_WORLD")
-	if IsLoggedIn() then
-		self:PLAYER_ENTERING_WORLD()
-	end
-end
-function frame:PLAYER_ENTERING_WORLD()
-	frame:RegisterEvent("BAG_UPDATE")
-end
-function frame:PLAYER_LEAVING_WORLD()
-	frame:UnregisterEvent("BAG_UPDATE")
+	self.db = db
+	self:RegisterBucketEvent("BAG_UPDATE", 0.5)
 end
 
--- I should throttle this -- BAG_UPDATE can be a busy event...
-function frame:BAG_UPDATE(updated_bag)
+function core:BAG_UPDATE(updated_bags)
 	table.wipe(junk_slots)
 	table.wipe(slot_contents)
 	table.wipe(slot_counts)
@@ -96,12 +59,8 @@ function frame:BAG_UPDATE(updated_bag)
 		end
 	end
 	
-	if #junk_slots == 0 then
-		Dropper.text = ''
-		return
-	end
 	table.sort(junk_slots, slot_sorter)
-	Dropper.text = #junk_slots .. ' items, ' .. copper_to_pretty_money(total)
+	self.events:Fire("Junk_Update", #junk_slots, total)
 end
 
 -- The rest is utility functions used above:
@@ -109,7 +68,7 @@ end
 function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
 
 function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
-frame.link_to_id = link_to_id
+core.link_to_id = link_to_id
 
 function pretty_bagslot_name(bagslot)
 	if not bagslot then return "???" end
@@ -122,6 +81,7 @@ function pretty_bagslot_name(bagslot)
 		return name
 	end
 end
+core.pretty_bagslot_name = pretty_bagslot_name
 
 function copper_to_pretty_money(c)
 	if c > 10000 then
@@ -132,6 +92,7 @@ function copper_to_pretty_money(c)
 		return ("%d|cffeda55fc|r"):format(c%100)
 	end
 end
+core.copper_to_pretty_money = copper_to_pretty_money
 
 function add_junk_to_tooltip(tooltip)
 	if #junk_slots == 0 then
@@ -146,12 +107,12 @@ function add_junk_to_tooltip(tooltip)
 		tooltip:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)
 	end
 end
-frame.add_junk_to_tooltip = add_junk_to_tooltip
+core.add_junk_to_tooltip = add_junk_to_tooltip
 
 function encode_bagslot(bag, slot) return (bag*100) + slot end
 function decode_bagslot(int) return math.floor(int/100), int % 100 end
-frame.encode_bagslot = encode_bagslot
-frame.decode_bagslot = decode_bagslot
+core.encode_bagslot = encode_bagslot
+core.decode_bagslot = decode_bagslot
 
 function drop_bagslot(bagslot, sell_only)
 	local bag, slot = decode_bagslot(bagslot)
@@ -174,5 +135,5 @@ function drop_bagslot(bagslot, sell_only)
 		DeleteCursorItem()
 	end
 end
-frame.drop_bagslot = drop_bagslot
+core.drop_bagslot = drop_bagslot
 
