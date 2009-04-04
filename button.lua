@@ -1,4 +1,43 @@
 local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
+local module = core:NewModule("Merchant")
+
+local db
+
+function module:OnInitialize()
+	self.db = core.db:RegisterNamespace("Merchant", {
+		profile = {
+			button = true,
+			auto = false,
+		},
+	})
+	db = self.db
+
+	local config = core:GetModule("Config", true)
+	if config then
+		config.options.plugins.merchant = {
+			merchant = {
+				type = "group",
+				name = "Merchant",
+				get = function(info) return db.profile[info[#info]] end,
+				set = function(info, v) db.profile[info[#info]] = v end,
+				args = {
+					button = {
+						type = "toggle",
+						name = "Show button",
+						desc = "Show the 'sell all' button on the merchant frame.",
+						order = 10,
+					},
+					auto = {
+						type = "toggle",
+						name = "Auto-sell",
+						desc = "Automatically sell all 'junk' items when you visit a merchant.",
+						order = 20,
+					},
+				},
+			},
+		}
+	end
+end
 
 local button_size = 32
 
@@ -42,16 +81,28 @@ button:SetScript("OnClick", function()
 	button:Disable()
 end)
 
-local function update_button(event)
-	if #core.junk_slots > 0 then
-		button:Enable()
+button:Hide()
+
+local function update_button()
+	if db.profile.button then
+		button:Show()
+		if #core.junk_slots > 0 then
+			button:Enable()
+		else
+			button:Disable()
+		end
 	else
-		button:Disable()
+		button:Hide()
 	end
 end
 
 button:RegisterEvent("MERCHANT_SHOW")
-button:SetScript("OnEvent", update_button)
+button:SetScript("OnEvent", function(event)
+	update_button()
+	if db.profile.auto then
+		button:Click()
+	end
+end)
 
 core.RegisterCallback("Button", "Junk_Update", update_button)
 
