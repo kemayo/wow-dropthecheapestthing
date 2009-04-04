@@ -42,13 +42,16 @@ button:SetScript("OnClick", function()
 	button:Disable()
 end)
 
-button:RegisterEvent("MERCHANT_SHOW")
---button:RegisterEvent( "MERCHANT_CLOSED")
-button:SetScript("OnEvent", function(event)
+local function update_button(event)
 	if #core.junk_slots > 0 then
 		button:Enable()
 	else
 		button:Disable()
 	end
-end)
+end
+
+button:RegisterEvent("MERCHANT_SHOW")
+button:SetScript("OnEvent", update_button)
+
+core.RegisterCallback("Button", "Junk_Update", update_button)
 
