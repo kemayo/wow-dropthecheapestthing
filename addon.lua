@@ -84,9 +84,9 @@ end
 core.pretty_bagslot_name = pretty_bagslot_name
 
 function copper_to_pretty_money(c)
-	if c > 10000 then
+	if c >= 10000 then
 		return ("|cffffffff%d|r|cffffd700g|r|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format(c/10000, (c/100)%100, c%100)
-	elseif c > 100 then
+	elseif c >= 100 then
 		return ("|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format((c/100)%100, c%100)
 	else
 		return ("|cffffffff%d|r|cffeda55fc|r"):format(c%100)
