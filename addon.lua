@@ -47,12 +47,12 @@ function core:BAG_UPDATE(updated_bags)
 			local link = GetContainerItemLink(bag, slot)
 			local itemid = link_to_id(link)
 			local _, count, _, quality = GetContainerItemInfo(bag, slot)
-			-- _quality_ is -1 if the item requires "special handling"; stackable, quest, whatever
+			-- quality_ is -1 if the item requires "special handling"; stackable, quest, whatever.
 			-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
 			-- whites and above could have quest-item issues. Though I suppose quest items don't have
 			-- vendor values, so...
 			if quality == -1 then quality = select(3, GetItemInfo(link)) end
-			if (not db.profile.never_consider[itemid]) and (db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold) then
+			if (not db.profile.never_consider[itemid]) and ((db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold)) then
 				local value = ItemPrice:GetPrice(link)
 				if value and value > 0 then
 					local bagslot = encode_bagslot(bag, slot)
