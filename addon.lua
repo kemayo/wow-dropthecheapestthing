@@ -21,13 +21,6 @@ function core:OnInitialize()
 			threshold = 0, -- items above this quality won't even be considered
 			always_consider = {},
 			never_consider = {},
-			ldbtext = {
-				item = false,
-				itemcount = false,
-				junkcount = true,
-				itemprice = false,
-				totalprice = true,
-			},
 		},
 	})
 	self.db = db
