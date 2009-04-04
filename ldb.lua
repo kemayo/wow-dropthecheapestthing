@@ -92,7 +92,6 @@ function module:OnInitialize()
 								icon:Show("DropTheCheapestThing")
 							end
 						end,
-						order = 10,
 						width = "full",
 						hidden = function() return not icon or not dataobject or not icon:IsRegistered("DropTheCheapestThing") end,
 					},
@@ -114,7 +113,6 @@ function module:OnInitialize()
 							junkcount = "Number of junk items",
 							totalprice = "Total value of junk",
 						},
-						order = 20,
 					},
 				}
 		--[[
