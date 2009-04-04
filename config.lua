@@ -86,10 +86,25 @@ function module:OnInitialize()
 						order = 10,
 					},
 					auction = {
-						type = "toggle",
+						type = "group",
 						name = "Auction values",
-						desc = "If a supported auction addon is installed, use the higher of the vendor and buyout prices as the item's value.",
+						inline = true,
 						order = 20,
+						args = {
+							auction = {
+								type = "toggle",
+								name = "Auction values",
+								desc = "If a supported auction addon is installed, use the higher of the vendor and buyout prices as the item's value.",
+								order = 10,
+							},
+							auction_threshold = {
+								type = "range",
+								name = "Auction threshold",
+								desc = "Only consider auction values for items of at least this quality.",
+								min = 0, max = 7, step = 1,
+								order = 20,
+							},
+						},
 					},
 				},
 				plugins = {},

@@ -24,15 +24,16 @@ function core:OnInitialize()
 			always_consider = {},
 			never_consider = {},
 			auction = false,
+			auction_threshold = 1,
 		},
 	})
 	self.db = db
 	self:RegisterBucketEvent("BAG_UPDATE", 0.5)
 end
 
-function item_value(item)
+function item_value(item, force_vendor)
 	local vendor = ItemPrice:GetPrice(item) or 0
-	if db.profile.auction and GetAuctionBuyout then
+	if db.profile.auction and GetAuctionBuyout and not force_vendor then
 		local auction = GetAuctionBuyout(item) or 0
 		if auction > vendor then
 			return auction, 'auction'
@@ -62,7 +63,7 @@ function core:BAG_UPDATE(updated_bags)
 			-- vendor values, so...
 			if quality == -1 then quality = select(3, GetItemInfo(link)) end
 			if (not db.profile.never_consider[itemid]) and ((db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold)) then
-				local value, source = item_value(itemid)
+				local value, source = item_value(itemid, quality < db.profile.auction_threshold)
 				if value and value > 0 then
 					local bagslot = encode_bagslot(bag, slot)
 					table.insert(junk_slots, bagslot)
@@ -119,7 +120,7 @@ function add_junk_to_tooltip(tooltip)
 		local total = 0
 		for _, bagslot in ipairs(junk_slots) do
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
-				(db.profile.auction and (' ('..slot_valuesources[bagslot]..')') or ''),
+				((db.profile.auction and db.profile.auction_threshold >= db.profile.threshold) and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
 				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]
 		end
