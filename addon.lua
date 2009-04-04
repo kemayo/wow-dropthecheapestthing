@@ -2,17 +2,19 @@ local ItemPrice = LibStub("ItemPrice-1.1")
 
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
-local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id
+local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id, item_value
 
 local junk_slots = {}
 local slot_contents = {}
 local slot_counts = {}
 local slot_values = {}
+local slot_valuesources = {}
 
 core.junk_slots = junk_slots
 core.slot_contents = slot_contents
 core.slot_counts = slot_counts
 core.slot_values = slot_values
+core.slot_valuesources = slot_valuesources
 core.events = LibStub("CallbackHandler-1.0"):New(core)
 
 function core:OnInitialize()
@@ -21,17 +23,31 @@ function core:OnInitialize()
 			threshold = 0, -- items above this quality won't even be considered
 			always_consider = {},
 			never_consider = {},
+			auction = false,
 		},
 	})
 	self.db = db
 	self:RegisterBucketEvent("BAG_UPDATE", 0.5)
 end
 
+function item_value(item)
+	local vendor = ItemPrice:GetPrice(item) or 0
+	if db.profile.auction and GetAuctionBuyout then
+		local auction = GetAuctionBuyout(item) or 0
+		if auction > vendor then
+			return auction, 'auction'
+		end
+	end
+	return vendor, 'vendor'
+end
+core.item_value = item_value
+
 function core:BAG_UPDATE(updated_bags)
 	table.wipe(junk_slots)
 	table.wipe(slot_contents)
 	table.wipe(slot_counts)
 	table.wipe(slot_values)
+	table.wipe(slot_valuesources)
 
 	local total = 0
 
@@ -46,13 +62,14 @@ function core:BAG_UPDATE(updated_bags)
 			-- vendor values, so...
 			if quality == -1 then quality = select(3, GetItemInfo(link)) end
 			if (not db.profile.never_consider[itemid]) and ((db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold)) then
-				local value = ItemPrice:GetPrice(link)
+				local value, source = item_value(itemid)
 				if value and value > 0 then
 					local bagslot = encode_bagslot(bag, slot)
 					table.insert(junk_slots, bagslot)
 					slot_contents[bagslot] = link
 					slot_counts[bagslot] = count
 					slot_values[bagslot] = value * count
+					slot_valuesources[bagslot] = source
 					total = total + slot_values[bagslot]
 				end
 			end
@@ -101,7 +118,9 @@ function add_junk_to_tooltip(tooltip)
 	else
 		local total = 0
 		for _, bagslot in ipairs(junk_slots) do
-			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]), nil, nil, nil, 1, 1, 1)
+			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
+				(db.profile.auction and (' ('..slot_valuesources[bagslot]..')') or ''),
+				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]
 		end
 		tooltip:AddDoubleLine(" ", "Total: " .. copper_to_pretty_money(total), nil, nil, nil, 1, 1, 1)

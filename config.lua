@@ -85,6 +85,12 @@ function module:OnInitialize()
 						min = 0, max = 7, step = 1,
 						order = 10,
 					},
+					auction = {
+						type = "toggle",
+						name = "Auction values",
+						desc = "If a supported auction addon is installed, use the higher of the vendor and buyout prices as the item's value.",
+						order = 20,
+					},
 				},
 				plugins = {},
 			},
