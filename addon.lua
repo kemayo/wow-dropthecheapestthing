@@ -120,7 +120,7 @@ function add_junk_to_tooltip(tooltip)
 		local total = 0
 		for _, bagslot in ipairs(junk_slots) do
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
-				((db.profile.auction and db.profile.auction_threshold >= db.profile.threshold) and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
+				(db.profile.auction and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
 				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]
 		end
