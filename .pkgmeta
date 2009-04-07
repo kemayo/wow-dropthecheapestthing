@@ -7,6 +7,7 @@ externals:
 	libs/AceTimer-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceTimer-3.0
 	libs/AceBucket-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceBucket-3.0
 	libs/AceConfig-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
+	libs/AceConsole-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConsole-3.0
 	libs/AceGUI-3.0: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
 	libs/ItemPrice-1.1: svn://svn.wowace.com/wow/itemprice-1-1/mainline/trunk
 	libs/LibDBIcon-1.0: svn://svn.wowace.com/wow/libdbicon-1-0/mainline/trunk/LibDBIcon-1.0
