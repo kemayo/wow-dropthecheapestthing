@@ -45,8 +45,6 @@ local button = CreateFrame("Button", nil, MerchantFrame)
 button:SetWidth(button_size)
 button:SetHeight(button_size)
 button:SetPoint("TOPRIGHT", MerchantFrame, "TOPRIGHT", -44, -38)
-button:SetFrameStrata("MEDIUM")
-button:SetFrameLevel(MerchantFrame:GetFrameLevel() + 1)
 button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
 local texture = button:CreateTexture(nil, "BACKGROUND")
