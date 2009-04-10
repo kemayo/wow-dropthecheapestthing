@@ -61,9 +61,8 @@ function module:OnInitialize()
 			},
 		},
 	})
-	db = self.db
 	if core.db.profile.ldbtext then
-		db.profile.text = core.db.profile.ldbtext
+		self.db.profile.text = core.db.profile.ldbtext
 		core.db.profile.ldbtext = nil
 	end
 	if icon then
@@ -82,7 +81,7 @@ function module:OnInitialize()
 						type = "toggle",
 						name = "Show minimap icon",
 						desc = "Toggle showing or hiding the minimap icon.",
-						get = function() return not db.profile.minimap.hide end,
+						get = function() return not self.db.profile.minimap.hide end,
 						set = function(info, v)
 							local hide = not v
 							db.profile.minimap.hide = hide
@@ -100,10 +99,10 @@ function module:OnInitialize()
 						name = "Broker Text",
 						desc = "What to display as text for the broker icon.",
 						get = function(info, key)
-							return db.profile.text[key]
+							return self.db.profile.text[key]
 						end,
 						set = function(info, key, v)
-							db.profile.text[key] = v
+							self.db.profile.text[key] = v
 							core:BAG_UPDATE()
 						end,
 						values = {
