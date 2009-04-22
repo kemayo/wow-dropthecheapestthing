@@ -3,9 +3,11 @@ local module = core:NewModule("Config", "AceConsole-3.0")
 local db
 
 local function removable_item(itemid)
+	local itemname = GetItemInfo(itemid)
 	return {
 		type = "execute",
-		name = GetItemInfo(itemid) or itemid,
+		name = itemname or 'itemid:'..tostring(itemid),
+		desc = not itemname and "Item isn't cached" or nil,
 		arg = itemid,
 	}
 end
