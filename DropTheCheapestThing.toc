@@ -1,8 +1,8 @@
-## Interface: 30000
+## Interface: 30100
 ## Title: DropTheCheapestThing
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
-## Version: 1.0
+## Version: @project-version@
 ## OptionalDeps: Ace3, ItemPrice-1.1, LibDBIcon-1.0
 ## SavedVariables: DropTheCheapestThingDB
 ## X-Category: Inventory
