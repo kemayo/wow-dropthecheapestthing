@@ -136,17 +136,17 @@ core.decode_bagslot = decode_bagslot
 
 function drop_bagslot(bagslot, sell_only)
 	local bag, slot = decode_bagslot(bagslot)
-	if not (bagslot and slot_contents[bagslot]) then
-		return DEFAULT_CHAT_FRAME:AddMessage("DropTheCheapestThing Error: Nothing found in requested slot. Aborting.", 1, 0, 0)
-	end
-	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
-		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
-	end
 	if CursorHasItem() then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
 	end
 	if sell_only and not MerchantFrame:IsVisible() then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+	end
+	if not (bagslot and slot_contents[bagslot]) then
+		return DEFAULT_CHAT_FRAME:AddMessage("DropTheCheapestThing Error: Nothing found in requested slot. Aborting.", 1, 0, 0)
+	end
+	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
+		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
 	if MerchantFrame:IsVisible() then

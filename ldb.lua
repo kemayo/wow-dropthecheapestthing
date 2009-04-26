@@ -24,7 +24,7 @@ function dataobject:OnClick(button)
 	else
 		if #core.junk_slots == 0 then return end
 		if not IsShiftKeyDown() then return end
-		core.drop_bagslot(core.junk_slots[1])
+		core.drop_bagslot(table.remove(core.junk_slots, 1))
 	end
 end
 
