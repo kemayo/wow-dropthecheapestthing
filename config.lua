@@ -82,10 +82,17 @@ function module:OnInitialize()
 				args = {
 					threshold = {
 						type = "range",
-						name = "Quality Threshold",
+						name = "Quality Threshold (Drop)",
 						desc = "Choose the maximum quality of item that will be considered for dropping. 0 is grey, 1 is white, 2 is green, etc.",
 						min = 0, max = 7, step = 1,
 						order = 10,
+					},
+					sell_threshold = {
+						type = "range",
+						name = "Quality Threshold (Sell)",
+						desc = "Choose the maximum quality of item that will be considered for selling. 0 is grey, 1 is white, 2 is green, etc.",
+						min = 0, max = 7, step = 1,
+						order = 15,
 					},
 					auction = {
 						type = "group",

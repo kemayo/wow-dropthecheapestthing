@@ -2,15 +2,19 @@ local ItemPrice = LibStub("ItemPrice-1.1")
 
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
-local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot, decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip, link_to_id, item_value
+local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
+      decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
+	  link_to_id, item_value, GetConsideredItemInfo
 
-local junk_slots = {}
+local drop_slots = {}
+local sell_slots = {}
 local slot_contents = {}
 local slot_counts = {}
 local slot_values = {}
 local slot_valuesources = {}
 
-core.junk_slots = junk_slots
+core.drop_slots = drop_slots
+core.sell_slots = sell_slots
 core.slot_contents = slot_contents
 core.slot_counts = slot_counts
 core.slot_values = slot_values
@@ -21,6 +25,7 @@ function core:OnInitialize()
 	db = LibStub("AceDB-3.0"):New("DropTheCheapestThingDB", {
 		profile = {
 			threshold = 0, -- items above this quality won't even be considered
+			sell_threshold = 0,
 			always_consider = {},
 			never_consider = {},
 			auction = false,
@@ -44,44 +49,68 @@ end
 core.item_value = item_value
 
 function core:BAG_UPDATE(updated_bags)
-	table.wipe(junk_slots)
+	table.wipe(drop_slots)
+	table.wipe(sell_slots)
 	table.wipe(slot_contents)
 	table.wipe(slot_counts)
 	table.wipe(slot_values)
 	table.wipe(slot_valuesources)
 
-	local total = 0
+	local total, total_sell, total_drop = 0, 0, 0
 
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local link = GetContainerItemLink(bag, slot)
-			local itemid = link_to_id(link)
-			local _, count, _, quality = GetContainerItemInfo(bag, slot)
-			-- quality_ is -1 if the item requires "special handling"; stackable, quest, whatever.
-			-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
-			-- whites and above could have quest-item issues. Though I suppose quest items don't have
-			-- vendor values, so...
-			if quality == -1 then quality = select(3, GetItemInfo(link)) end
-			if (not db.profile.never_consider[itemid]) and ((db.profile.always_consider[itemid]) or (quality and quality <= db.profile.threshold)) then
-				local value, source = item_value(itemid, quality < db.profile.auction_threshold)
-				if value and value > 0 then
-					local bagslot = encode_bagslot(bag, slot)
-					table.insert(junk_slots, bagslot)
-					slot_contents[bagslot] = link
-					slot_counts[bagslot] = count
-					slot_values[bagslot] = value * count
-					slot_valuesources[bagslot] = source
-					total = total + slot_values[bagslot]
+			local itemid, link,count, quality, value, source = GetConsideredItemInfo(bag, slot)
+			if itemid then
+				local bagslot = encode_bagslot(bag, slot)
+				slot_contents[bagslot] = link
+				slot_counts[bagslot] = count
+				slot_values[bagslot] = value * count
+				slot_valuesources[bagslot] = source
+				if quality <= db.profile.threshold then
+					total_drop = total_drop + slot_values[bagslot]
+					table.insert(drop_slots, bagslot)
 				end
+				if quality <= db.profile.sell_threshold then
+					total_sell = total_sell + slot_values[bagslot]
+					table.insert(sell_slots, bagslot)
+				end
+				total = total + slot_values[bagslot]
 			end
 		end
 	end
 	
-	table.sort(junk_slots, slot_sorter)
-	self.events:Fire("Junk_Update", #junk_slots, total)
+	table.sort(drop_slots, slot_sorter)
+	self.events:Fire("Junk_Update", #drop_slots, #sell_slots, total_drop, total_sell, total)
 end
 
 -- The rest is utility functions used above:
+
+function GetConsideredItemInfo(bag, slot)
+	-- this tells us whether or not the item in this slot could possibly be a candidate for dropping/selling
+	local link = GetContainerItemLink(bag, slot)
+	if not link then return end -- empty slot!
+	
+	local _, count, _, quality = GetContainerItemInfo(bag, slot)
+	-- quality_ is -1 if the item requires "special handling"; stackable, quest, whatever.
+	-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
+	-- whites and above could have quest-item issues. Though I suppose quest items don't have
+	-- vendor values, so...
+	if quality == -1 then quality = select(3, GetItemInfo(link)) end
+	if not quality then return end -- if we don't know the quality now, something weird is going on
+
+	local itemid = link_to_id(link)
+	if db.profile.never_consider[itemid] then return end
+	if not db.profile.always_consider[itemid] then
+		if quality > db.profile.threshold and quality > db.profile.sell_threshold then
+			return
+		end
+	end
+	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
+	if (not value) or value == 0 then return end
+	
+	return itemid, link, count, quality, value, source
+end
 
 function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
 
@@ -112,13 +141,14 @@ function copper_to_pretty_money(c)
 end
 core.copper_to_pretty_money = copper_to_pretty_money
 
-function add_junk_to_tooltip(tooltip)
-	if #junk_slots == 0 then
+function add_junk_to_tooltip(tooltip, slots)
+	slots = slots or drop_slots
+	if #slots == 0 then
 		tooltip:AddLine("Nothing")
 		return
 	else
 		local total = 0
-		for _, bagslot in ipairs(junk_slots) do
+		for _, bagslot in ipairs(slots) do
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
 				(db.profile.auction and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
 				nil, nil, nil, 1, 1, 1)

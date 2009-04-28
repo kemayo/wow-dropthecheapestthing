@@ -11,7 +11,7 @@ local dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 
 function dataobject:OnTooltipShow()
 	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
-	core.add_junk_to_tooltip(self)
+	core.add_junk_to_tooltip(self, MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots)
 	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 end
 
@@ -22,30 +22,30 @@ function dataobject:OnClick(button)
 			config:ShowConfig()
 		end
 	else
-		if #core.junk_slots == 0 then return end
+		local slots = MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots
+		if #slots == 0 then return end
 		if not IsShiftKeyDown() then return end
-		core.drop_bagslot(table.remove(core.junk_slots, 1))
+		core.drop_bagslot(table.remove(slots, 1))
 	end
 end
 
 local WHITE = "|cffffffff"
 local END = "|r"
 
-core.RegisterCallback("LDB", "Junk_Update", function(callback, junk_count, total)
-	if junk_count == 0 then
+core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_count, drop_total, sell_total, total)
+	if drop_count == 0 then
 		dataobject.text = ''
 		return
 	end
 	local db = module.db.profile.text
-	--dataobject.text = junk_count .. ' items, ' .. core.copper_to_pretty_money(total)
 	dataobject.text = 
-		((db.item or db.itemcount) and core.pretty_bagslot_name(core.junk_slots[1], db.item, db.itemcount, db.itemcount) or '') ..
+		((db.item or db.itemcount) and core.pretty_bagslot_name(core.drop_slots[1], db.item, db.itemcount, db.itemcount) or '') ..
 		WHITE .. ((db.item and db.itemprice) and ' @ ' or '') .. END ..
-		WHITE .. (db.itemprice and core.copper_to_pretty_money(core.slot_values[core.junk_slots[1]]) or '') .. END ..
+		WHITE .. (db.itemprice and core.copper_to_pretty_money(core.slot_values[core.drop_slots[1]]) or '') .. END ..
 		WHITE .. (((db.item or db.itemprice) and (db.junkcount or db.totalprice)) and ' : ' or '') .. END ..
-		WHITE .. (db.junkcount and junk_count or '') .. END ..
+		WHITE .. (db.junkcount and drop_count or '') .. END ..
 		WHITE .. ((db.junkcount and db.totalprice) and ' @ ' or '') .. END ..
-		WHITE .. (db.totalprice and core.copper_to_pretty_money(total) or '') .. END
+		WHITE .. (db.totalprice and core.copper_to_pretty_money(drop_total) or '') .. END
 end)
 
 function module:OnInitialize()

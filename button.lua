@@ -65,7 +65,7 @@ button:SetDisabledTexture(texture)
 button:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
 	GameTooltip:AddLine("Junk To Sell")
-	core.add_junk_to_tooltip(GameTooltip)
+	core.add_junk_to_tooltip(GameTooltip, core.sell_slots)
 	GameTooltip:AddLine("|cffeda55fClick|r to sell everything.", 0.2, 1, 0.2, 1)
 	GameTooltip:Show()
 end)
@@ -74,7 +74,7 @@ button:SetScript("OnLeave", function()
 end)
 
 button:SetScript("OnClick", function()
-	for _, bagslot in ipairs(core.junk_slots) do
+	for _, bagslot in ipairs(core.sell_slots) do
 		core.drop_bagslot(bagslot, true)
 	end
 	button:Disable()
@@ -85,7 +85,7 @@ button:Hide()
 local function update_button()
 	if db.profile.button then
 		button:Show()
-		if #core.junk_slots > 0 then
+		if #core.sell_slots > 0 then
 			button:Enable()
 		else
 			button:Disable()
