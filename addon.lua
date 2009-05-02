@@ -67,11 +67,11 @@ function core:BAG_UPDATE(updated_bags)
 				slot_counts[bagslot] = count
 				slot_values[bagslot] = value * count
 				slot_valuesources[bagslot] = source
-				if quality <= db.profile.threshold then
+				if db.profile.always_consider[itemid] or quality <= db.profile.threshold then
 					total_drop = total_drop + slot_values[bagslot]
 					table.insert(drop_slots, bagslot)
 				end
-				if quality <= db.profile.sell_threshold then
+				if db.profile.always_consider[itemid] or quality <= db.profile.sell_threshold then
 					total_sell = total_sell + slot_values[bagslot]
 					table.insert(sell_slots, bagslot)
 				end
