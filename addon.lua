@@ -3,8 +3,8 @@ local ItemPrice = LibStub("ItemPrice-1.1")
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
-      decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
-	  link_to_id, item_value, GetConsideredItemInfo
+	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
+	link_to_id, item_value, GetConsideredItemInfo
 
 local drop_slots = {}
 local sell_slots = {}
@@ -37,7 +37,7 @@ function core:OnInitialize()
 end
 
 function item_value(item, force_vendor)
-	local vendor = ItemPrice:GetPrice(item) or 0
+	local vendor = select(11, GetItemInfo(item)) or 0
 	if db.profile.auction and GetAuctionBuyout and not force_vendor then
 		local auction = GetAuctionBuyout(item) or 0
 		if auction > vendor then
