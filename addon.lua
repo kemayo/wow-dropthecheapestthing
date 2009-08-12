@@ -1,5 +1,3 @@
-local ItemPrice = LibStub("ItemPrice-1.1")
-
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
