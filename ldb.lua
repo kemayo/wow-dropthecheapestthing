@@ -2,9 +2,11 @@ local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
 local module = core:NewModule("LDB")
 local icon = LibStub("LibDBIcon-1.0", true)
 
+local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_Bag_22.blp"
+
 local dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestThing", {
 	type = "data source",
-	icon = "Interface\\Icons\\INV_Misc_Bag_22.blp",
+	icon = DEFAULT_ICON,
 	label = "Drop",
 	text = "",
 })
@@ -35,6 +37,7 @@ local END = "|r"
 core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_count, drop_total, sell_total, total)
 	if drop_count == 0 then
 		dataobject.text = ''
+		dataobject.icon = DEFAULT_ICON
 		return
 	end
 	local db = module.db.profile.text
@@ -46,6 +49,7 @@ core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_
 		WHITE .. (db.junkcount and drop_count or '') .. END ..
 		WHITE .. ((db.junkcount and db.totalprice) and ' @ ' or '') .. END ..
 		WHITE .. (db.totalprice and core.copper_to_pretty_money(drop_total) or '') .. END
+	dataobject.icon = select(10, GetItemInfo(core.slot_contents[core.drop_slots[1]]))
 end)
 
 function module:OnInitialize()

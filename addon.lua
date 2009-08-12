@@ -29,9 +29,9 @@ function core:OnInitialize()
 			auction = false,
 			auction_threshold = 1,
 		},
-	})
+	}, DEFAULT)
 	self.db = db
-	self:RegisterBucketEvent("BAG_UPDATE", 0.5)
+	self:RegisterBucketEvent("BAG_UPDATE", 2)
 end
 
 function item_value(item, force_vendor)
