@@ -161,7 +161,11 @@ function add_junk_to_tooltip(tooltip, slots)
 		for _, bagslot in ipairs(slots) do
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
 				(slot_values[bagslot] ~= slot_weightedvalues[bagslot] and (' (' .. copper_to_pretty_money(slot_weightedvalues[bagslot]) .. ')') or '') ..
-				(db.profile.auction and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
+				(db.profile.auction and
+					(' '..(slot_valuesources[bagslot] == 'vendor' and '|cff9d9d9d' or '|cff1eff00') ..
+					slot_valuesources[bagslot]:sub(1,1)) ..
+					(slot_valuesources[bagslot] == 'vendor' and '|r' or '') or ''
+				),
 				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]
 		end
