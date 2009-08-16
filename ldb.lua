@@ -15,13 +15,26 @@ function dataobject:OnTooltipShow()
 	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
 	core.add_junk_to_tooltip(self, MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots)
 	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
+	self:AddLine("|cffeda55fControl-Right-Click|r to add the current cheapest item to the ignore list.", 0.2, 1, 0.2, 1)
 end
 
 function dataobject:OnClick(button)
 	if button == "RightButton" then
-		local config = core:GetModule("Config", true)
-		if config then
-			config:ShowConfig()
+		if IsControlKeyDown() then
+			-- add topmost item to the ignore list
+			-- TODO: Update the config screen
+			local slots = MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots
+			if #slots == 0 then return end
+			local id = core.link_to_id(core.slot_contents[table.remove(slots, 1)])
+			if not id then return end -- this really shouldn't happen... but just in case
+			core.db.profile.never_consider[id] = true
+			core:BAG_UPDATE()
+		else
+			-- just show the config
+			local config = core:GetModule("Config", true)
+			if config then
+				config:ShowConfig()
+			end
 		end
 	else
 		local slots = MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots

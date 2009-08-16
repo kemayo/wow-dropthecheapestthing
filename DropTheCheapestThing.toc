@@ -3,7 +3,7 @@
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
 ## Version: @project-version@
-## OptionalDeps: Ace3, LibDBIcon-1.0
+## OptionalDeps: Ace3, LibDBIcon-1.0, tekDebug
 ## SavedVariables: DropTheCheapestThingDB
 ## X-Category: Inventory
 
