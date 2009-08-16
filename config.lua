@@ -1,5 +1,5 @@
 local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
-local module = core:NewModule("Config", "AceConsole-3.0")
+local module = core:NewModule("Config")
 local db
 
 local function removable_item(itemid)
@@ -129,10 +129,14 @@ function module:OnInitialize()
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("DropTheCheapestThing", options)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("DropTheCheapestThing", "DropTheCheapestThing")
-	self:RegisterChatCommand("dropcheap", function() LibStub("AceConfigDialog-3.0"):Open("DropTheCheapestThing") end)
 end
 
 function module:ShowConfig()
 	LibStub("AceConfigDialog-3.0"):Open("DropTheCheapestThing")
 end
 
+SLASH_DROPTHECHEAPESTTHING1 = "/dropcheap"
+SLASH_DROPTHECHEAPESTTHING2 = "/dtct"
+function SlashCmdList.DROPTHECHEAPESTTHING()
+	module:ShowConfig()
+end
