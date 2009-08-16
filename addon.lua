@@ -8,14 +8,18 @@ local drop_slots = {}
 local sell_slots = {}
 local slot_contents = {}
 local slot_counts = {}
+local slot_stacksizes = {}
 local slot_values = {}
+local slot_weightedvalues = {}
 local slot_valuesources = {}
 
 core.drop_slots = drop_slots
 core.sell_slots = sell_slots
 core.slot_contents = slot_contents
 core.slot_counts = slot_counts
+core.slot_stacksizes = slot_stacksizes
 core.slot_values = slot_values
+core.slot_weightedvalues = slot_weightedvalues
 core.slot_valuesources = slot_valuesources
 core.events = LibStub("CallbackHandler-1.0"):New(core)
 
@@ -28,6 +32,7 @@ function core:OnInitialize()
 			never_consider = {},
 			auction = false,
 			auction_threshold = 1,
+			full_stacks = false,
 		},
 	}, DEFAULT)
 	self.db = db
@@ -51,19 +56,23 @@ function core:BAG_UPDATE(updated_bags)
 	table.wipe(sell_slots)
 	table.wipe(slot_contents)
 	table.wipe(slot_counts)
+	table.wipe(slot_stacksizes)
 	table.wipe(slot_values)
+	table.wipe(slot_weightedvalues)
 	table.wipe(slot_valuesources)
 
 	local total, total_sell, total_drop = 0, 0, 0
 
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid, link,count, quality, value, source = GetConsideredItemInfo(bag, slot)
+			local itemid, link, count, stacksize, quality, value, source = GetConsideredItemInfo(bag, slot)
 			if itemid then
 				local bagslot = encode_bagslot(bag, slot)
 				slot_contents[bagslot] = link
 				slot_counts[bagslot] = count
+				slot_stacksizes[bagslot] = stacksize
 				slot_values[bagslot] = value * count
+				slot_weightedvalues[bagslot] = db.profile.full_stacks and (value * stacksize) or (value * count)
 				slot_valuesources[bagslot] = source
 				if db.profile.always_consider[itemid] or quality <= db.profile.threshold then
 					total_drop = total_drop + slot_values[bagslot]
@@ -90,6 +99,7 @@ function GetConsideredItemInfo(bag, slot)
 	if not link then return end -- empty slot!
 	
 	local _, count, _, quality = GetContainerItemInfo(bag, slot)
+	local stacksize = select(8, GetItemInfo(link))
 	-- quality_ is -1 if the item requires "special handling"; stackable, quest, whatever.
 	-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
 	-- whites and above could have quest-item issues. Though I suppose quest items don't have
@@ -107,10 +117,12 @@ function GetConsideredItemInfo(bag, slot)
 	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
 	if (not value) or value == 0 then return end
 	
-	return itemid, link, count, quality, value, source
+	return itemid, link, count, stacksize, quality, value, source
 end
 
-function slot_sorter(a,b) return slot_values[a] < slot_values[b] end
+function slot_sorter(a,b)
+	return slot_weightedvalues[a] < slot_weightedvalues[b]
+end
 
 function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
 core.link_to_id = link_to_id
@@ -148,6 +160,7 @@ function add_junk_to_tooltip(tooltip, slots)
 		local total = 0
 		for _, bagslot in ipairs(slots) do
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
+				(slot_values[bagslot] ~= slot_weightedvalues[bagslot] and (' (' .. copper_to_pretty_money(slot_weightedvalues[bagslot]) .. ')') or '') ..
 				(db.profile.auction and (' '..slot_valuesources[bagslot]:sub(1,1)) or ''),
 				nil, nil, nil, 1, 1, 1)
 			total = total + slot_values[bagslot]

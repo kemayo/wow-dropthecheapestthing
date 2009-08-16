@@ -115,6 +115,11 @@ function module:OnInitialize()
 							},
 						},
 					},
+					full_stacks = {
+						type = "toggle",
+						name = "Use full stack value",
+						order = 30,
+					},
 				},
 				plugins = {},
 			},
