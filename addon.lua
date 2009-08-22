@@ -102,6 +102,7 @@ function core:BAG_UPDATE(updated_bags)
 	end
 	
 	table.sort(drop_slots, slot_sorter)
+	table.sort(sell_slots, slot_sorter)
 	self.events:Fire("Junk_Update", #drop_slots, #sell_slots, total_drop, total_sell, total)
 end
 
