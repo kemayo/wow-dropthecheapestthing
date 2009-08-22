@@ -37,6 +37,20 @@ function core:OnInitialize()
 	}, DEFAULT)
 	self.db = db
 	self:RegisterBucketEvent("BAG_UPDATE", 2)
+	self:RegisterEvent("MERCHANT_SHOW")
+	self:RegisterEvent("MERCHANT_CLOSED")
+	
+	if MerchantFrame:IsVisible() then
+		self.at_merchant = true
+	end
+end
+
+function core:MERCHANT_SHOW()
+	self.at_merchant = true
+end
+
+function core:MERCHANT_CLOSED()
+	self.at_merchant = nil
 end
 
 function item_value(item, force_vendor)
@@ -184,7 +198,7 @@ function drop_bagslot(bagslot, sell_only)
 	if CursorHasItem() then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
 	end
-	if sell_only and not MerchantFrame:IsVisible() then
+	if sell_only and not core.at_merchant then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
 	end
 	if not (bagslot and slot_contents[bagslot]) then
@@ -194,7 +208,7 @@ function drop_bagslot(bagslot, sell_only)
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
-	if MerchantFrame:IsVisible() then
+	if core.at_merchant then
 		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(slot_values[bagslot]))
 		UseContainerItem(bag, slot)
 	else
