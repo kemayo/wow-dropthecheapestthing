@@ -1,5 +1,8 @@
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
+local debugf = tekDebug and tekDebug:GetFrame("DropTheCheapestThing")
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo
@@ -46,10 +49,12 @@ function core:OnInitialize()
 end
 
 function core:MERCHANT_SHOW()
+	Debug("MERCHANT_SHOW")
 	self.at_merchant = true
 end
 
 function core:MERCHANT_CLOSED()
+	Debug("MERCHANT_CLOSED")
 	self.at_merchant = nil
 end
 
@@ -136,6 +141,12 @@ function GetConsideredItemInfo(bag, slot)
 end
 
 function slot_sorter(a,b)
+	if slot_weightedvalues[a] == slot_weightedvalues[b] then
+		if slot_values[a] == slot_values[b] then
+			return slot_counts[a] < slot_counts[b]
+		end
+		return slot_values[a] < slot_values[b]
+	end
 	return slot_weightedvalues[a] < slot_weightedvalues[b]
 end
 
@@ -195,6 +206,8 @@ core.encode_bagslot = encode_bagslot
 core.decode_bagslot = decode_bagslot
 
 function drop_bagslot(bagslot, sell_only)
+	Debug("drop_bagslot", bagslot, sell_only and 'sell_only' or '')
+	Debug("At merchant?", core.at_merchant and 'yes' or 'no')
 	local bag, slot = decode_bagslot(bagslot)
 	if CursorHasItem() then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
