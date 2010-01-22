@@ -44,18 +44,20 @@ function core:OnInitialize()
 	self:RegisterEvent("MERCHANT_CLOSED")
 	
 	if MerchantFrame:IsVisible() then
-		self.at_merchant = true
+		self:MERCHANT_SHOW()
 	end
 end
 
 function core:MERCHANT_SHOW()
 	Debug("MERCHANT_SHOW")
 	self.at_merchant = true
+	self.events:Fire("Merchant_Open")
 end
 
 function core:MERCHANT_CLOSED()
 	Debug("MERCHANT_CLOSED")
 	self.at_merchant = nil
+	self.events:Fire("Merchant_Close")
 end
 
 function item_value(item, force_vendor)

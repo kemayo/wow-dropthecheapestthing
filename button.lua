@@ -95,13 +95,11 @@ local function update_button()
 	end
 end
 
-button:RegisterEvent("MERCHANT_SHOW")
-button:SetScript("OnEvent", function(event)
+core.RegisterCallback("Button", "Junk_Update", update_button)
+
+core.RegisterCallback("Button", "Merchant_Open", function()
 	update_button()
 	if db.profile.auto then
 		button:Click()
 	end
 end)
-
-core.RegisterCallback("Button", "Junk_Update", update_button)
-
