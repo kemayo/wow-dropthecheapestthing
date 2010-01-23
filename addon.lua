@@ -2,10 +2,11 @@ local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-
 
 local debugf = tekDebug and tekDebug:GetFrame("DropTheCheapestThing")
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+core.Debug = Debug
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
-	link_to_id, item_value, GetConsideredItemInfo
+	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
 local drop_slots = {}
 local sell_slots = {}
@@ -155,6 +156,33 @@ end
 function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
 core.link_to_id = link_to_id
 
+function verify_slot_contents(bagslot)
+	-- This check won't notice if the itemids and counts are the same, but the item has a
+	-- different enchantment / gem situation. Since dropping/selling enchanted / gemmed items
+	-- is quite unlikely, I don't care that much about this.
+	-- If it turns out to matter, the link-comparison could be updated to check for it.
+	Debug("Verifying slot contents", bagslot)
+	local bag, slot = decode_bagslot(bagslot)
+	if link_to_id(slot_contents[bagslot]) ~= link_to_id(GetContainerItemLink(bag, slot)) then
+		Debug("Verification failed, itemids don't match",
+			"expected", link_to_id(slot_contents[bagslot]),
+			"found", link_to_id(GetContainerItemLink(bag, slot))
+		)
+		return false
+	end
+	local _, count = GetContainerItemInfo(bag, slot)
+	if slot_counts[bagslot] ~= count then
+		Debug("Verification failed, counts don't match",
+			"expected", slot_counts[bagslot],
+			"found", count
+		)
+		return false
+	end
+	Debug("Slot contents are ok")
+	return true
+end
+core.verify_slot_contents = verify_slot_contents
+
 function pretty_bagslot_name(bagslot, show_name, show_count, force_count)
 	if not bagslot or not slot_contents[bagslot] then return "???" end
 	if show_name == nil then show_name = true end
@@ -212,7 +240,7 @@ function drop_bagslot(bagslot, sell_only)
 	Debug("At merchant?", core.at_merchant and 'yes' or 'no')
 	local bag, slot = decode_bagslot(bagslot)
 	if CursorHasItem() then
-		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+		return DEFAULT_CHAT_FRAME:AddMessage("DropTheCheapestThing Error: Can't delete/sell items while an item is on the cursor. Aborting.", 1, 0, 0)
 	end
 	if sell_only and not core.at_merchant then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
@@ -220,7 +248,7 @@ function drop_bagslot(bagslot, sell_only)
 	if not (bagslot and slot_contents[bagslot]) then
 		return DEFAULT_CHAT_FRAME:AddMessage("DropTheCheapestThing Error: Nothing found in requested slot. Aborting.", 1, 0, 0)
 	end
-	if slot_contents[bagslot] ~= GetContainerItemLink(bag, slot) then
+	if not verify_slot_contents(bagslot) then
 		return DEFAULT_CHAT_FRAME:AddMessage(("DropTheCheapestThing Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
