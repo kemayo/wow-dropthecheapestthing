@@ -1,7 +1,7 @@
 local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
 
 local debugf = tekDebug and tekDebug:GetFrame("DropTheCheapestThing")
-local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", ...)) end end
+local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", tostringall(...))) end end
 core.Debug = Debug
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
