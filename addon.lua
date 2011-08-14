@@ -260,6 +260,7 @@ function drop_bagslot(bagslot, sell_only)
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
 	end
+	return slot_values[bagslot] or 0
 end
 core.drop_bagslot = drop_bagslot
 

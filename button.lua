@@ -74,8 +74,12 @@ button:SetScript("OnLeave", function()
 end)
 
 button:SetScript("OnClick", function()
+	local total = 0
 	for _, bagslot in ipairs(core.sell_slots) do
-		core.drop_bagslot(bagslot, true)
+		total = total + core.drop_bagslot(bagslot, true)
+	end
+	if #core.sell_slots > 1 then
+		DEFAULT_CHAT_FRAME:AddMessage("Total value: " .. core.copper_to_pretty_money(total))
 	end
 	button:Disable()
 end)
