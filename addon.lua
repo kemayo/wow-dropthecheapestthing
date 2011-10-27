@@ -263,4 +263,3 @@ function drop_bagslot(bagslot, sell_only)
 	return slot_values[bagslot] or 0
 end
 core.drop_bagslot = drop_bagslot
-

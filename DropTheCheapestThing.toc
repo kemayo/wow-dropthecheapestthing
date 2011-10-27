@@ -3,7 +3,7 @@
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
 ## Version: @project-version@
-## OptionalDeps: Ace3, LibDBIcon-1.0, tekDebug
+## OptionalDeps: Ace3, LibDBIcon-1.0, tekDebug, Bagnon
 ## SavedVariables: DropTheCheapestThingDB
 ## X-Category: Inventory
 
@@ -25,4 +25,4 @@ addon.lua
 config.lua
 ldb.lua
 button.lua
-
+bagnon.lua
