@@ -69,7 +69,7 @@ end
 function module:OnInitialize()
 	db = core.db
 
-	local options = {
+	local options = return {
 		type = "group",
 		name = "DropTheCheapestThing",
 		get = function(info) return db.profile[info[#info]] end,
@@ -80,20 +80,6 @@ function module:OnInitialize()
 				name = "General",
 				order = 10,
 				args = {
-					threshold = {
-						type = "range",
-						name = "Quality Threshold (Drop)",
-						desc = "Choose the maximum quality of item that will be considered for dropping. 0 is grey, 1 is white, 2 is green, etc.",
-						min = 0, max = 7, step = 1,
-						order = 10,
-					},
-					sell_threshold = {
-						type = "range",
-						name = "Quality Threshold (Sell)",
-						desc = "Choose the maximum quality of item that will be considered for selling. 0 is grey, 1 is white, 2 is green, etc.",
-						min = 0, max = 7, step = 1,
-						order = 15,
-					},
 					auction = {
 						type = "group",
 						name = "Auction values",
@@ -122,6 +108,42 @@ function module:OnInitialize()
 					},
 				},
 				plugins = {},
+			},
+			what = {
+				type = "group",
+				name = "What to drop",
+				order = 15,
+				args = {
+					threshold = {
+						type = "range",
+						name = "Quality Threshold (Drop)",
+						desc = "Choose the maximum quality of item that will be considered for dropping. 0 is grey, 1 is white, 2 is green, etc.",
+						min = 0, max = 7, step = 1,
+						order = 10,
+					},
+					sell_threshold = {
+						type = "range",
+						name = "Quality Threshold (Sell)",
+						desc = "Choose the maximum quality of item that will be considered for selling. 0 is grey, 1 is white, 2 is green, etc.",
+						min = 0, max = 7, step = 1,
+						order = 15,
+					},
+					low = {
+						type = "group",
+						name = "Low level items",
+						desc = "Which items of a lower level (more than 10 below yours) to automatically count as junk",
+						inline = true,
+						order = 20,
+						get = function(info) return db.profile.low[info[#info]] end,
+						set = function(info, v) db.profile.low[info[#info]] = v; core:BAG_UPDATE() end,
+						args = {
+							food = { name = "Food & drink", type = "toggle", order = 10 },
+							potion = { name = "Potions", type = "toggle", order = 20 },
+							bandage = { name = "Bandages", type = "toggle", order = 30 },
+							scroll = { name = "Scrolls", type = "toggle", order = 40 },
+						},
+					},
+				}
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
 			never = item_list_group("Never Consider", 30, "Items listed here will *never* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen.", db.profile.never_consider),

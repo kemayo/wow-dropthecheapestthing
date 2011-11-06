@@ -8,6 +8,9 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
+local WEAPON, ARMOR, _, CONSUMABLES = GetAuctionItemClasses()
+local FOOD, POTION, ELIXIR, FLASK, BANDAGE, _, SCROLL = GetAuctionItemSubClasses(4)
+
 local drop_slots = {}
 local sell_slots = {}
 local slot_contents = {}
@@ -25,6 +28,7 @@ core.slot_stacksizes = slot_stacksizes
 core.slot_values = slot_values
 core.slot_weightedvalues = slot_weightedvalues
 core.slot_valuesources = slot_valuesources
+
 core.events = LibStub("CallbackHandler-1.0"):New(core)
 
 function core:OnInitialize()
@@ -37,6 +41,12 @@ function core:OnInitialize()
 			auction = false,
 			auction_threshold = 1,
 			full_stacks = false,
+			low = {
+				food = true,
+				scroll = true,
+				potion = true,
+				bandage = true,
+			}
 		},
 	}, DEFAULT)
 	self.db = db
@@ -73,6 +83,7 @@ function item_value(item, force_vendor)
 end
 core.item_value = item_value
 
+local player_level
 function core:BAG_UPDATE(updated_bags)
 	table.wipe(drop_slots)
 	table.wipe(sell_slots)
@@ -84,10 +95,11 @@ function core:BAG_UPDATE(updated_bags)
 	table.wipe(slot_valuesources)
 
 	local total, total_sell, total_drop = 0, 0, 0
+	player_level = UnitLevel('player')
 
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid, link, count, stacksize, quality, value, source = GetConsideredItemInfo(bag, slot)
+			local itemid, link, count, stacksize, quality, value, source, forced = GetConsideredItemInfo(bag, slot)
 			if itemid then
 				local bagslot = encode_bagslot(bag, slot)
 				slot_contents[bagslot] = link
@@ -96,11 +108,11 @@ function core:BAG_UPDATE(updated_bags)
 				slot_values[bagslot] = value * count
 				slot_weightedvalues[bagslot] = db.profile.full_stacks and (value * stacksize) or (value * count)
 				slot_valuesources[bagslot] = source
-				if db.profile.always_consider[itemid] or quality <= db.profile.threshold then
+				if forced or quality <= db.profile.threshold then
 					total_drop = total_drop + slot_values[bagslot]
 					table.insert(drop_slots, bagslot)
 				end
-				if db.profile.always_consider[itemid] or quality <= db.profile.sell_threshold then
+				if forced or quality <= db.profile.sell_threshold then
 					total_sell = total_sell + slot_values[bagslot]
 					table.insert(sell_slots, bagslot)
 				end
@@ -116,31 +128,67 @@ end
 
 -- The rest is utility functions used above:
 
+local filters = {
+	function(itemid)
+		if db.profile.never_consider[itemid] then
+			return false
+		end
+	end,
+	function(itemid)
+		if db.profile.always_consider[itemid] then
+			return true
+		end
+	end,
+	function(itemid, quality, level, class, subclass)
+		if class == CONSUMABLES and level ~= 0 and (player_level - level) > 10 then
+			if subclass == FOOD and db.profile.low.food then
+				return true
+			end
+			if (subclass == POTION or subclass == ELIXIR or subclass == FLASK) and db.profile.low.potion then
+				return true
+			end
+			if subclass == BANDAGE and db.profile.low.bandage then
+				return true
+			end
+			if subclass == SCROLL and db.profile.low.scroll then
+				return true
+			end
+		end
+	end,
+	function(itemid, quality, level, class)
+		if quality > db.profile.threshold and quality > db.profile.sell_threshold then
+			return false
+		end
+	end,
+}
+
 function GetConsideredItemInfo(bag, slot)
 	-- this tells us whether or not the item in this slot could possibly be a candidate for dropping/selling
 	local link = GetContainerItemLink(bag, slot)
 	if not link then return end -- empty slot!
 	
-	local _, count, _, quality = GetContainerItemInfo(bag, slot)
-	local stacksize = select(8, GetItemInfo(link))
-	-- quality_ is -1 if the item requires "special handling"; stackable, quest, whatever.
-	-- I'm not actually sure how best to handle this; it's not really a problem with greys, but
-	-- whites and above could have quest-item issues. Though I suppose quest items don't have
-	-- vendor values, so...
-	if quality == -1 then quality = select(3, GetItemInfo(link)) end
+	-- name, link, quality, ilvl, required level, class, subclass, stacksize, equipslot, texture, value
+	local _, _, quality, level, _, class, subclass, stacksize = GetItemInfo(link)
 	if not quality then return end -- if we don't know the quality now, something weird is going on
 
 	local itemid = link_to_id(link)
-	if db.profile.never_consider[itemid] then return end
-	if not db.profile.always_consider[itemid] then
-		if quality > db.profile.threshold and quality > db.profile.sell_threshold then
+
+	local action
+	for _, filter in ipairs(filters) do
+		action = filter(itemid, quality, level, class, subclass)
+		if action == false then
 			return
 		end
+		if action == true then
+			break
+		end
 	end
+
 	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
 	if (not value) or value == 0 then return end
 	
-	return itemid, link, count, stacksize, quality, value, source
+	local _, count = GetContainerItemInfo(bag, slot)
+	return itemid, link, count, stacksize, quality, value, source, action
 end
 
 function slot_sorter(a,b)
@@ -153,7 +201,8 @@ function slot_sorter(a,b)
 	return slot_weightedvalues[a] < slot_weightedvalues[b]
 end
 
-function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end -- "item" because we only care about items, duh
+-- "item" because we only care about items, duh
+function link_to_id(link) return link and tonumber(string.match(link, "item:(%d+)")) end
 core.link_to_id = link_to_id
 
 function verify_slot_contents(bagslot)
