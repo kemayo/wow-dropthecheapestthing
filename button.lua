@@ -14,7 +14,7 @@ function module:OnInitialize()
 
 	local config = core:GetModule("Config", true)
 	if config then
-		config.options.plugins.merchant = {
+		config.plugins.merchant = {
 			merchant = {
 				type = "group",
 				name = "Merchant",

@@ -88,41 +88,47 @@ function module:OnInitialize()
 
 	local config = core:GetModule("Config", true)
 	if config then
-		config.options.args.general.plugins.broker = {
-			minimap = {
-				type = "toggle",
-				name = "Show minimap icon",
-				desc = "Toggle showing or hiding the minimap icon.",
-				get = function() return not self.db.profile.minimap.hide end,
-				set = function(info, v)
-					local hide = not v
-					self.db.profile.minimap.hide = hide
-					if hide then
-						icon:Hide("DropTheCheapestThing")
-					else
-						icon:Show("DropTheCheapestThing")
-					end
-				end,
-				width = "full",
-				hidden = function() return not icon or not dataobject or not icon:IsRegistered("DropTheCheapestThing") end,
-			},
-			text = {
-				type = "multiselect",
-				name = "Broker Text",
-				desc = "What to display as text for the broker icon.",
-				get = function(info, key)
-					return self.db.profile.text[key]
-				end,
-				set = function(info, key, v)
-					self.db.profile.text[key] = v
-					core:BAG_UPDATE()
-				end,
-				values = {
-					item = "Cheapest item",
-					itemcount = "Stack size of cheapest item",
-					itemprice = "Value of cheapest item",
-					junkcount = "Number of junk items",
-					totalprice = "Total value of junk",
+		config.plugins.broker = {
+			broker = {
+				type = "group",
+				name = "Broker",
+				args = {
+					minimap = {
+						type = "toggle",
+						name = "Show minimap icon",
+						desc = "Toggle showing or hiding the minimap icon.",
+						get = function() return not self.db.profile.minimap.hide end,
+						set = function(info, v)
+							local hide = not v
+							self.db.profile.minimap.hide = hide
+							if hide then
+								icon:Hide("DropTheCheapestThing")
+							else
+								icon:Show("DropTheCheapestThing")
+							end
+						end,
+						width = "full",
+						hidden = function() return not icon or not dataobject or not icon:IsRegistered("DropTheCheapestThing") end,
+					},
+					text = {
+						type = "multiselect",
+						name = "Broker Text",
+						desc = "What to display as text for the broker icon.",
+						get = function(info, key)
+							return self.db.profile.text[key]
+						end,
+						set = function(info, key, v)
+							self.db.profile.text[key] = v
+							core:BAG_UPDATE()
+						end,
+						values = {
+							item = "Cheapest item",
+							itemcount = "Stack size of cheapest item",
+							itemprice = "Value of cheapest item",
+							junkcount = "Number of junk items",
+							totalprice = "Total value of junk",
+						},
+					},
 				},
 			},
 		}

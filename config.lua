@@ -69,7 +69,7 @@ end
 function module:OnInitialize()
 	db = core.db
 
-	local options = return {
+	local options = function() return {
 		type = "group",
 		name = "DropTheCheapestThing",
 		get = function(info) return db.profile[info[#info]] end,
@@ -148,11 +148,10 @@ function module:OnInitialize()
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
 			never = item_list_group("Never Consider", 30, "Items listed here will *never* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen.", db.profile.never_consider),
 		},
-		plugins = {
-			--profiles = { profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(db), },
-		},
-	}
-	self.options = options
+		plugins = self.plugins,
+	} end
+	self.plugins = {}
+	-- self.options = options
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("DropTheCheapestThing", options)
 	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("DropTheCheapestThing", "DropTheCheapestThing")
