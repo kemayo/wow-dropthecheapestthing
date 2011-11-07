@@ -140,7 +140,7 @@ local filters = {
 		end
 	end,
 	function(itemid, quality, level, class, subclass)
-		if class == CONSUMABLES and level ~= 0 and (player_level - level) > 10 then
+		if class == CONSUMABLES and level ~= 0 and (player_level - level) >= 10 then
 			if subclass == FOOD and db.profile.low.food then
 				return true
 			end
