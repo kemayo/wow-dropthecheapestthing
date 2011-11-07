@@ -6,7 +6,12 @@ if Bagnon then
     local r, g, b = GetItemQualityColor(0)
 
     function ItemSlot:SetBorderQuality(...)
-        local link = select(7, self:GetItemSlotInfo())
+        local link
+        if self.GetItemSlotInfo then
+            link = select(7, self:GetItemSlotInfo())
+        else
+            link = select(7, self:GetInfo())
+        end
 
         if link then
             local id = tonumber(strmatch(link, 'item:(%d+)'))
