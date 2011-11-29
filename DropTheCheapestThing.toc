@@ -1,4 +1,4 @@
-## Interface: 40200
+## Interface: 40300
 ## Title: DropTheCheapestThing
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
