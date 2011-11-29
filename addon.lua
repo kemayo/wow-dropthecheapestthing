@@ -42,10 +42,10 @@ function core:OnInitialize()
 			auction_threshold = 1,
 			full_stacks = false,
 			low = {
-				food = true,
-				scroll = true,
-				potion = true,
-				bandage = true,
+				food = false,
+				scroll = false,
+				potion = false,
+				bandage = false,
 			}
 		},
 	}, DEFAULT)
@@ -129,32 +129,37 @@ end
 -- The rest is utility functions used above:
 
 local filters = {
+	-- Never consider
 	function(itemid)
 		if db.profile.never_consider[itemid] then
 			return false
 		end
 	end,
+	-- Always consider
 	function(itemid)
 		if db.profile.always_consider[itemid] then
 			return true
 		end
 	end,
+	-- Low level consumables
 	function(itemid, quality, level, class, subclass)
-		if class == CONSUMABLES and level ~= 0 and (player_level - level) >= 10 then
-			if subclass == FOOD and db.profile.low.food then
-				return true
-			end
-			if (subclass == POTION or subclass == ELIXIR or subclass == FLASK) and db.profile.low.potion then
-				return true
-			end
-			if subclass == BANDAGE and db.profile.low.bandage then
-				return true
-			end
-			if subclass == SCROLL and db.profile.low.scroll then
-				return true
-			end
+		if class ~= CONSUMABLES or level == 0 or (player_level - level) < 10 then
+			return
+		end
+		if subclass == FOOD and db.profile.low.food then
+			return true
+		end
+		if (subclass == POTION or subclass == ELIXIR or subclass == FLASK) and db.profile.low.potion then
+			return true
+		end
+		if subclass == BANDAGE and db.profile.low.bandage then
+			return true
+		end
+		if subclass == SCROLL and db.profile.low.scroll then
+			return true
 		end
 	end,
+	-- Quality
 	function(itemid, quality, level, class)
 		if quality > db.profile.threshold and quality > db.profile.sell_threshold then
 			return false
