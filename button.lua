@@ -39,12 +39,12 @@ function module:OnInitialize()
 	end
 end
 
-local button_size = 32
+local button_size = 22
 
 local button = CreateFrame("Button", nil, MerchantFrame)
 button:SetWidth(button_size)
 button:SetHeight(button_size)
-button:SetPoint("TOPRIGHT", MerchantFrame, "TOPRIGHT", -44, -38)
+button:SetPoint("TOPRIGHT", MerchantFrame, "TOPRIGHT", -24, 0)
 button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
 local texture = button:CreateTexture(nil, "BACKGROUND")
