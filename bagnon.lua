@@ -31,7 +31,10 @@ if Bagnon then
 
     core.RegisterCallback("Button", "Junk_Update", function()
         for _,frame in pairs(Bagnon.frames) do
-            frame.itemFrame:UpdateEverything()
+            if frame.itemFrame then
+                -- bagnon creates these on first use
+                frame.itemFrame:UpdateEverything()
+            end
         end
     end)
 end
