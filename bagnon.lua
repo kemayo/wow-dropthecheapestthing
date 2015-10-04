@@ -14,6 +14,9 @@ if Bagnon then
         if link then
             local id = tonumber(strmatch(link, 'item:(%d+)'))
             local bag, slot = self:GetBag(), self:GetID()
+            if not (type(bag) == "number") then
+                return
+            end
             local bagslot = core.encode_bagslot(bag, slot)
             if core.slot_contents[bagslot] then
                 self:SetBorderColor(r, g, b)
