@@ -8,6 +8,7 @@ if Bagnon then
     function ItemSlot:UpdateBorder(...)
         -- First, do the core bagnon behavior for stuff like new-item flashing
         UpdateBorder(self, ...)
+        self.JunkIcon:Hide()
 
         -- Now override if we have junk
         local link = self:GetItem()
@@ -20,16 +21,12 @@ if Bagnon then
             local bagslot = core.encode_bagslot(bag, slot)
             if core.slot_contents[bagslot] then
                 self:SetBorderColor(r, g, b)
+                self.JunkIcon:Show()
             end
         end
     end
 
-    core.RegisterCallback("Button", "Junk_Update", function()
-        for _,frame in pairs(Bagnon.frames) do
-            if frame.itemFrame then
-                -- bagnon creates these on first use
-                frame.itemFrame:ForAll('UpdateBorder')
-            end
-        end
+    core.RegisterCallback("Bagnon", "Junk_Update", function()
+        Bagnon:UpdateFrames()
     end)
 end
