@@ -5,6 +5,8 @@
 ## Version: @project-version@
 ## OptionalDeps: Ace3, LibDBIcon-1.0, tekDebug, Bagnon
 ## SavedVariables: DropTheCheapestThingDB
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
 ## X-Category: Inventory
 
 #@no-lib-strip@
