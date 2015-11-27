@@ -338,7 +338,9 @@ function drop_bagslot(bagslot, sell_only)
 	end
 
 	if core.at_merchant then
-		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(slot_values[bagslot]))
+		-- value might be the auction value, so force-check it
+		local value = slot_counts[bagslot] * item_value(slot_contents[bagslot], true)
+		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(value))
 		UseContainerItem(bag, slot)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[bagslot]))
