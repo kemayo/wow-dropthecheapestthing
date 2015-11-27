@@ -143,6 +143,18 @@ function module:OnInitialize()
 							scroll = { name = "Scrolls", type = "toggle", order = 40 },
 						},
 					},
+					soulbound = {
+						type = "toggle",
+						name = "Soulbound items",
+						desc = "Things which are soulbound to you are much less likely to be things you want to drop.",
+						order = 40,
+					},
+					valueless = {
+						type = "toggle",
+						name = "Valueless items",
+						desc = "Some items technically have no value. These are more likely than average to be interesting toy or holiday items. Note that this includes your hearthstone...",
+						order = 40,
+					},
 				}
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),

@@ -19,6 +19,13 @@ local slot_stacksizes = {}
 local slot_values = {}
 local slot_weightedvalues = {}
 local slot_valuesources = {}
+local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
+	local bag, slot = decode_bagslot(bagslot)
+	local is_soulbound = core.CheckTooltipFor(bag, slot, ITEM_SOULBOUND) or core.CheckTooltipFor(bag, slot, ITEM_BNETACCOUNTBOUND)
+	self[bagslot] = is_soulbound
+	return is_soulbound
+end,})
+
 
 core.drop_slots = drop_slots
 core.sell_slots = sell_slots
@@ -41,6 +48,8 @@ function core:OnInitialize()
 			auction = false,
 			auction_threshold = 1,
 			full_stacks = false,
+			valueless = false,
+			soulbound = false,
 			low = {
 				food = false,
 				scroll = false,
@@ -93,6 +102,7 @@ function core:BAG_UPDATE(updated_bags)
 	table.wipe(slot_values)
 	table.wipe(slot_weightedvalues)
 	table.wipe(slot_valuesources)
+	table.wipe(slot_soulbound)
 
 	local total, total_sell, total_drop = 0, 0, 0
 	player_level = UnitLevel('player')
@@ -112,7 +122,7 @@ function core:BAG_UPDATE(updated_bags)
 					total_drop = total_drop + slot_values[bagslot]
 					table.insert(drop_slots, bagslot)
 				end
-				if forced or quality <= db.profile.sell_threshold then
+				if (forced or quality <= db.profile.sell_threshold) and value > 0 then
 					total_sell = total_sell + slot_values[bagslot]
 					table.insert(sell_slots, bagslot)
 				end
@@ -130,20 +140,25 @@ end
 
 local filters = {
 	-- Never consider
-	function(itemid)
+	function(bag, slot, itemid)
 		if db.profile.never_consider[itemid] then
 			return false
 		end
 	end,
 	-- Always consider
-	function(itemid)
+	function(bag, slot, itemid)
 		if db.profile.always_consider[itemid] then
 			return true
 		end
 	end,
 	-- Low level consumables
-	function(itemid, quality, level, class, subclass)
+	function(bag, slot, itemid, quality, level, class, subclass)
 		if class ~= CONSUMABLES or level == 0 or (player_level - level) < 10 then
+			return
+		end
+		if slot_soulbound[encode_bagslot(bag, slot)] then
+			-- ignore consumables if they're soulbound, regardless of the soulbinding setting
+			-- (mostly because of things like Oralius' Whispering Crystal, which is a bound blue reusable "consumable")
 			return
 		end
 		if subclass == FOOD and db.profile.low.food then
@@ -160,8 +175,17 @@ local filters = {
 		end
 	end,
 	-- Quality
-	function(itemid, quality, level, class)
+	function(bag, slot, itemid, quality, level, class)
 		if quality > db.profile.threshold and quality > db.profile.sell_threshold then
+			return false
+		end
+	end,
+	function(bag, slot)
+		if db.profile.soulbound then
+			-- don't care!
+			return
+		end
+		if slot_soulbound[encode_bagslot(bag, slot)] then
 			return false
 		end
 	end,
@@ -180,7 +204,7 @@ function GetConsideredItemInfo(bag, slot)
 
 	local action
 	for _, filter in ipairs(filters) do
-		action = filter(itemid, quality, level, class, subclass)
+		action = filter(bag, slot, itemid, quality, level, class, subclass)
 		if action == false then
 			return
 		end
@@ -190,8 +214,14 @@ function GetConsideredItemInfo(bag, slot)
 	end
 
 	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
-	if (not value) or value == 0 then return end
-	
+	if (not value) or value == 0 then
+		if db.profile.valueless then
+			value = 0
+		else
+			return
+		end
+	end
+
 	local _, count = GetContainerItemInfo(bag, slot)
 	return itemid, link, count, stacksize, quality, value, source, action
 end
@@ -317,3 +347,32 @@ function drop_bagslot(bagslot, sell_only)
 	return slot_values[bagslot] or 0
 end
 core.drop_bagslot = drop_bagslot
+
+do
+	local tooltip
+	function core.CheckTooltipFor(bag, slot, text)
+		if not tooltip then
+			tooltip = CreateFrame("GameTooltip", "DropCheapScanningTooltip", nil, "GameTooltipTemplate")
+			tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
+		end
+		tooltip:ClearLines()
+		if slot and not bag then
+			-- just showing tooltip for an itemid
+			-- uses rather innocent checking so that slot can be a link or an itemid
+			local link = tostring(slot) -- so that ":match" is guaranteed to be okay
+			if not link:match("item:") then
+				link = "item:"..link
+			end
+			tooltip:SetHyperlink(link)
+		else
+			tooltip:SetBagItem(bag, slot)
+		end
+		for i=2, tooltip:NumLines() do
+			local left = _G["DropCheapScanningTooltipTextLeft"..i]
+			--local right = _G["DropCheapScanningTooltipTextRight"..i]
+			if left and left:IsShown() and string.match(left:GetText(), text) then return true end
+			--if right and right:IsShown() and string.match(right:GetText(), text) then return true end
+		end
+		return false
+	end
+end
