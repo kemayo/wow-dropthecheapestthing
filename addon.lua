@@ -215,7 +215,8 @@ function GetConsideredItemInfo(bag, slot)
 
 	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
 	if (not value) or value == 0 then
-		if db.profile.valueless then
+		if db.profile.valueless or action then
+			-- forced things should _always_ go through, otherwise it depends on the valueless setting
 			value = 0
 		else
 			return
