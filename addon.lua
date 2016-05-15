@@ -8,8 +8,12 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
-local WEAPON, ARMOR, _, CONSUMABLES = GetAuctionItemClasses()
-local FOOD, POTION, ELIXIR, FLASK, BANDAGE, _, SCROLL = GetAuctionItemSubClasses(4)
+local POTION = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 1)
+local ELIXIR = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 2)
+local FLASK = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 3)
+local FOOD = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 5)
+local BANDAGE = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 7)
+local OTHER = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 8)
 
 local drop_slots = {}
 local sell_slots = {}
@@ -153,7 +157,8 @@ local filters = {
 	end,
 	-- Low level consumables
 	function(bag, slot, itemid, quality, level, class, subclass)
-		if class ~= CONSUMABLES or level == 0 or (player_level - level) < 10 then
+		-- Consumables get itemclass "", so we have to work it out a bit
+		if class ~= "" or level == 0 or (player_level - level) < 10 then
 			return
 		end
 		if slot_soulbound[encode_bagslot(bag, slot)] then
@@ -170,7 +175,8 @@ local filters = {
 		if subclass == BANDAGE and db.profile.low.bandage then
 			return true
 		end
-		if subclass == SCROLL and db.profile.low.scroll then
+		-- Scrolls are lumped into "Other" now...
+		if subclass == OTHER and db.profile.low.scroll then
 			return true
 		end
 	end,
