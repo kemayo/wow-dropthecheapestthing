@@ -62,10 +62,13 @@ function core:OnInitialize()
 		},
 	}, DEFAULT)
 	self.db = db
-	self:RegisterBucketEvent("BAG_UPDATE", 2)
+	self:RegisterBucketEvent("BAG_UPDATE", 1)
 	self:RegisterEvent("MERCHANT_SHOW")
 	self:RegisterEvent("MERCHANT_CLOSED")
-	
+end
+
+function core:OnEnable()
+	self:BAG_UPDATE()
 	if MerchantFrame:IsVisible() then
 		self:MERCHANT_SHOW()
 	end
@@ -133,9 +136,10 @@ function core:BAG_UPDATE(updated_bags)
 			end
 		end
 	end
-	
+
 	table.sort(drop_slots, slot_sorter)
 	table.sort(sell_slots, slot_sorter)
+	Debug("Junk updated", #drop_slots, #sell_slots, total_drop, total_sell, total)
 	self.events:Fire("Junk_Update", #drop_slots, #sell_slots, total_drop, total_sell, total)
 end
 
