@@ -8,12 +8,12 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
-local POTION = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 1)
-local ELIXIR = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 2)
-local FLASK = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 3)
-local FOOD = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 5)
-local BANDAGE = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 7)
-local OTHER = GetItemSubClassInfo(LE_ITEM_CLASS_CONSUMABLE, 8)
+local LE_ITEM_CLASS_CONSUMABLE_POTION = 1
+local LE_ITEM_CLASS_CONSUMABLE_ELIXIR = 2
+local LE_ITEM_CLASS_CONSUMABLE_FLASK = 3
+local LE_ITEM_CLASS_CONSUMABLE_FOOD = 5
+local LE_ITEM_CLASS_CONSUMABLE_BANDAGE = 7
+local LE_ITEM_CLASS_CONSUMABLE_OTHER = 8
 
 local drop_slots = {}
 local sell_slots = {}
@@ -29,7 +29,6 @@ local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 	self[bagslot] = is_soulbound
 	return is_soulbound
 end,})
-
 
 core.drop_slots = drop_slots
 core.sell_slots = sell_slots
@@ -157,8 +156,7 @@ local filters = {
 	end,
 	-- Low level consumables
 	function(bag, slot, itemid, quality, level, class, subclass)
-		-- Consumables get itemclass "", so we have to work it out a bit
-		if class ~= "" or level == 0 or (player_level - level) < 10 then
+		if class ~= LE_ITEM_CLASS_CONSUMABLE or level == 0 or (player_level - level) < 10 then
 			return
 		end
 		if slot_soulbound[encode_bagslot(bag, slot)] then
@@ -166,17 +164,17 @@ local filters = {
 			-- (mostly because of things like Oralius' Whispering Crystal, which is a bound blue reusable "consumable")
 			return
 		end
-		if subclass == FOOD and db.profile.low.food then
+		if subclass == LE_ITEM_CLASS_CONSUMABLE_FOOD and db.profile.low.food then
 			return true
 		end
-		if (subclass == POTION or subclass == ELIXIR or subclass == FLASK) and db.profile.low.potion then
+		if (subclass == LE_ITEM_CLASS_CONSUMABLE_POTION or subclass == LE_ITEM_CLASS_CONSUMABLE_ELIXIR or subclass == LE_ITEM_CLASS_CONSUMABLE_FLASK) and db.profile.low.potion then
 			return true
 		end
-		if subclass == BANDAGE and db.profile.low.bandage then
+		if subclass == LE_ITEM_CLASS_CONSUMABLE_BANDAGE and db.profile.low.bandage then
 			return true
 		end
 		-- Scrolls are lumped into "Other" now...
-		if subclass == OTHER and db.profile.low.scroll then
+		if subclass == LE_ITEM_CLASS_CONSUMABLE_OTHER and db.profile.low.scroll then
 			return true
 		end
 	end,
@@ -202,8 +200,8 @@ function GetConsideredItemInfo(bag, slot)
 	local link = GetContainerItemLink(bag, slot)
 	if not link then return end -- empty slot!
 	
-	-- name, link, quality, ilvl, required level, class, subclass, stacksize, equipslot, texture, value
-	local _, _, quality, level, _, class, subclass, stacksize = GetItemInfo(link)
+	-- name, link, quality, ilvl, required level, classstring, subclassstring, stacksize, equipslot, texture, value, class, subclass
+	local _, _, quality, level, _, _, _, stacksize, _, _, _, class, subclass = GetItemInfo(link)
 	if not quality then return end -- if we don't know the quality now, something weird is going on
 
 	local itemid = link_to_id(link)
