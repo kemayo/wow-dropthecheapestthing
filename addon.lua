@@ -205,14 +205,14 @@ function GetConsideredItemInfo(bag, slot)
 	if not link then return end -- empty slot!
 	
 	-- name, link, quality, ilvl, required level, classstring, subclassstring, stacksize, equipslot, texture, value, class, subclass
-	local _, _, quality, level, _, _, _, stacksize, _, _, _, class, subclass = GetItemInfo(link)
+	local _, _, quality, ilvl, reqLevel, _, _, stacksize, _, _, _, class, subclass = GetItemInfo(link)
 	if not quality then return end -- if we don't know the quality now, something weird is going on
 
 	local itemid = link_to_id(link)
 
 	local action
 	for _, filter in ipairs(filters) do
-		action = filter(bag, slot, itemid, quality, level, class, subclass)
+		action = filter(bag, slot, itemid, quality, reqLevel, class, subclass)
 		if action == false then
 			return
 		end
