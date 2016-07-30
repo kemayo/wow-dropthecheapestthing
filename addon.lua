@@ -29,6 +29,11 @@ local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 	self[bagslot] = is_soulbound
 	return is_soulbound
 end,})
+local item_quest = setmetatable({}, {__index = function(self, itemid)
+	local is_quest = core.CheckTooltipFor(nil, itemid, ITEM_BIND_QUEST)
+	self[itemid] = is_quest
+	return is_quest
+end,})
 
 core.drop_slots = drop_slots
 core.sell_slots = sell_slots
@@ -209,6 +214,11 @@ function GetConsideredItemInfo(bag, slot)
 	if not quality then return end -- if we don't know the quality now, something weird is going on
 
 	local itemid = link_to_id(link)
+
+	-- We outright shouldn't be trying to drop quest items
+	if item_quest[itemid] then
+		return
+	end
 
 	local action
 	for _, filter in ipairs(filters) do
