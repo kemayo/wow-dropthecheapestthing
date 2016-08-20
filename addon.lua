@@ -165,7 +165,7 @@ local filters = {
 	end,
 	-- Low level consumables
 	function(bag, slot, itemid, quality, level, class, subclass)
-		if class ~= LE_ITEM_CLASS_CONSUMABLE or level == 0 or (player_level - level) < 10 then
+		if class ~= LE_ITEM_CLASS_CONSUMABLE or level == 0 or (player_level - level) <= 10 then
 			return
 		end
 		if slot_soulbound[encode_bagslot(bag, slot)] then
