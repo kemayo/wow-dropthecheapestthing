@@ -193,8 +193,9 @@ local filters = {
 			return false
 		end
 	end,
-	function(bag, slot)
-		if db.profile.soulbound then
+	-- Bound?
+	function(bag, slot, itemid, quality)
+		if db.profile.soulbound or quality == 0 then
 			-- don't care!
 			return
 		end
