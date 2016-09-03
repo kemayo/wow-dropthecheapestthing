@@ -91,15 +91,16 @@ function core:MERCHANT_CLOSED()
 	self.events:Fire("Merchant_Close")
 end
 
+-- returns: price, source, vendorable
 function item_value(item, force_vendor)
 	local vendor = select(11, GetItemInfo(item)) or 0
 	if db.profile.auction and GetAuctionBuyout and not force_vendor then
 		local auction = GetAuctionBuyout(item) or 0
 		if auction > vendor then
-			return auction, 'auction'
+			return auction, 'auction', vendor > 0
 		end
 	end
-	return vendor, 'vendor'
+	return vendor, 'vendor', vendor > 0
 end
 core.item_value = item_value
 
@@ -120,7 +121,7 @@ function core:BAG_UPDATE(updated_bags)
 
 	for bag = 0, NUM_BAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid, link, count, stacksize, quality, value, source, forced = GetConsideredItemInfo(bag, slot)
+			local itemid, link, count, stacksize, quality, value, source, forced, sellable = GetConsideredItemInfo(bag, slot)
 			if itemid then
 				local bagslot = encode_bagslot(bag, slot)
 				slot_contents[bagslot] = link
@@ -133,7 +134,7 @@ function core:BAG_UPDATE(updated_bags)
 					total_drop = total_drop + slot_values[bagslot]
 					table.insert(drop_slots, bagslot)
 				end
-				if (forced or quality <= db.profile.sell_threshold) and value > 0 then
+				if (forced or quality <= db.profile.sell_threshold) and sellable then
 					total_sell = total_sell + slot_values[bagslot]
 					table.insert(sell_slots, bagslot)
 				end
@@ -232,7 +233,7 @@ function GetConsideredItemInfo(bag, slot)
 		end
 	end
 
-	local value, source = item_value(itemid, quality < db.profile.auction_threshold)
+	local value, source, sellable = item_value(itemid, quality < db.profile.auction_threshold)
 	if (not value) or value == 0 then
 		if db.profile.valueless or action then
 			-- forced things should _always_ go through, otherwise it depends on the valueless setting
@@ -243,7 +244,7 @@ function GetConsideredItemInfo(bag, slot)
 	end
 
 	local _, count = GetContainerItemInfo(bag, slot)
-	return itemid, link, count, stacksize, quality, value, source, action
+	return itemid, link, count, stacksize, quality, value, source, action, sellable
 end
 
 function slot_sorter(a,b)
