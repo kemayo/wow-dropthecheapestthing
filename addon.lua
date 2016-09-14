@@ -224,7 +224,7 @@ function GetConsideredItemInfo(bag, slot)
 
 	local action
 	for _, filter in ipairs(filters) do
-		action = filter(bag, slot, itemid, quality, reqLevel, class, subclass)
+		action = filter(bag, slot, itemid, quality, max(ilvl, reqLevel), class, subclass)
 		if action == false then
 			return
 		end
