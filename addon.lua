@@ -294,7 +294,7 @@ function pretty_bagslot_name(bagslot, show_name, show_count, force_count)
 	if show_count == nil then show_count = true end
 	local link = slot_contents[bagslot]
 	local name = link:gsub("[%[%]]", "")
-	local max = select(8, GetItemInfo(link))
+	local max = select(8, GetItemInfo(link)) or 1
 	return (show_name and link:gsub("[%[%]]", "") or '') ..
 		((show_name and show_count) and ' ' or '') ..
 		((show_count and (force_count or max > 1)) and (slot_counts[bagslot] .. '/' .. max) or '')
