@@ -20,7 +20,8 @@ if Bagnon then
             end
             local bagslot = core.encode_bagslot(bag, slot)
             if core.slot_contents[bagslot] then
-                self:SetBorderColor(r, g, b)
+                self.IconGlow:SetVertexColor(r, g, b, 0.5)
+                self.IconGlow:SetShown(r)
                 self.JunkIcon:Show()
             end
         end
