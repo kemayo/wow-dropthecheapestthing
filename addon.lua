@@ -210,7 +210,7 @@ function GetConsideredItemInfo(bag, slot)
 	-- this tells us whether or not the item in this slot could possibly be a candidate for dropping/selling
 	local link = GetContainerItemLink(bag, slot)
 	if not link then return end -- empty slot!
-	
+
 	-- name, link, quality, ilvl, required level, classstring, subclassstring, stacksize, equipslot, texture, value, class, subclass
 	local _, _, quality, ilvl, reqLevel, _, _, stacksize, _, _, _, class, subclass = GetItemInfo(link)
 	if not quality then return end -- if we don't know the quality now, something weird is going on

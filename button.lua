@@ -40,6 +40,7 @@ function module:OnInitialize()
 end
 
 local button_size = 22
+local texture
 
 local button = CreateFrame("Button", nil, MerchantFrame)
 button:SetWidth(button_size)
@@ -47,16 +48,16 @@ button:SetHeight(button_size)
 button:SetPoint("TOPRIGHT", MerchantFrame, "TOPRIGHT", -24, 0)
 button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
-local texture = button:CreateTexture(nil, "BACKGROUND")
+texture = button:CreateTexture(nil, "BACKGROUND")
 texture:SetTexture("Interface\\Icons\\INV_Egg_04")
 texture:SetAllPoints(button)
 
-local texture = button:CreateTexture()
+texture = button:CreateTexture()
 texture:SetTexture("Interface\\Buttons\\ButtonHilight-Square")
 texture:SetAllPoints(button)
 button:SetHighlightTexture(texture)
 
-local texture = button:CreateTexture()
+texture = button:CreateTexture()
 texture:SetTexture("Interface\\Icons\\INV_Egg_04")
 texture:SetAllPoints(button)
 texture:SetDesaturated(true)

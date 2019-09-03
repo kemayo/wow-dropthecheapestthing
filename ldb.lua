@@ -54,7 +54,7 @@ core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_
 		return
 	end
 	local db = module.db.profile.text
-	dataobject.text = 
+	dataobject.text =
 		((db.item or db.itemcount) and core.pretty_bagslot_name(core.drop_slots[1], db.item, db.itemcount, db.itemcount) or '') ..
 		WHITE .. ((db.item and db.itemprice) and ' @ ' or '') .. END ..
 		WHITE .. (db.itemprice and core.copper_to_pretty_money(core.slot_values[core.drop_slots[1]]) or '') .. END ..
@@ -134,4 +134,3 @@ function module:OnInitialize()
 		}
 	end
 end
-
