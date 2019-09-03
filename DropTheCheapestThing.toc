@@ -1,4 +1,4 @@
-## Interface: 80100
+## Interface: 80200
 ## Title: DropTheCheapestThing
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
@@ -8,6 +8,10 @@
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
 ## X-Category: Inventory
+
+## X-Website: https://www.wowace.com/projects/dropthecheapestthing
+## X-License: BSD
+## X-Curse-Project-ID: 17852
 
 #@no-lib-strip@
 embeds.xml
