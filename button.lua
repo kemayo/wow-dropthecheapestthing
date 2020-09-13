@@ -92,13 +92,13 @@ end)
 button:Hide()
 
 local function update_button()
+	if #core.sell_slots > 0 then
+		button:Enable()
+	else
+		button:Disable()
+	end
 	if db.profile.button then
 		button:Show()
-		if #core.sell_slots > 0 then
-			button:Enable()
-		else
-			button:Disable()
-		end
 	else
 		button:Hide()
 	end
