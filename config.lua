@@ -2,12 +2,16 @@ local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
 local module = core:NewModule("Config")
 local db
 
+local function item_name(info)
+	return GetItemInfo(info.arg) or 'itemid:'..tostring(info.arg)
+end
+
 local function removable_item(itemid)
-	local itemname = GetItemInfo(itemid)
+	local _, itemType, itemSubtype = GetItemInfoInstant(itemid)
 	return {
 		type = "execute",
-		name = itemname or 'itemid:'..tostring(itemid),
-		desc = not itemname and "Item isn't cached" or nil,
+		name = item_name,
+		desc = ("%s %s"):format(itemType, itemSubtype),
 		arg = itemid,
 	}
 end
