@@ -1,19 +1,17 @@
 local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
 
 if Bagnon then
-    local ItemSlot = Bagnon.ItemSlot
-    local UpdateBorder = ItemSlot.UpdateBorder
+    local UpdateBorder = Bagnon.Item.UpdateBorder
     local r, g, b = GetItemQualityColor(0)
 
-    function ItemSlot:UpdateBorder(...)
+    function Bagnon.Item:UpdateBorder(...)
         -- First, do the core bagnon behavior for stuff like new-item flashing
         UpdateBorder(self, ...)
         self.JunkIcon:Hide()
 
         -- Now override if we have junk
-        local link = self:GetItem()
-        if link then
-            local id = tonumber(strmatch(link, 'item:(%d+)'))
+        local info = self:GetInfo()
+        if info and info.id then
             local bag, slot = self:GetBag(), self:GetID()
             if not (type(bag) == "number") then
                 return
@@ -28,6 +26,6 @@ if Bagnon then
     end
 
     core.RegisterCallback("Bagnon", "Junk_Update", function()
-        Bagnon:UpdateFrames()
+        Bagnon.Frames:Update()
     end)
 end
