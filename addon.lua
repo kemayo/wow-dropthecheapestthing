@@ -25,7 +25,7 @@ local slot_weightedvalues = {}
 local slot_valuesources = {}
 local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 	local bag, slot = decode_bagslot(bagslot)
-	local is_soulbound = core.CheckTooltipFor(bag, slot, ITEM_SOULBOUND) or core.CheckTooltipFor(bag, slot, ITEM_BNETACCOUNTBOUND)
+	local is_soulbound = C_Item.IsBound(ItemLocation:CreateFromBagAndSlot(bag, slot))
 	self[bagslot] = is_soulbound
 	return is_soulbound
 end,})
@@ -67,13 +67,14 @@ function core:OnInitialize()
 		},
 	}, DEFAULT)
 	self.db = db
-	self:RegisterBucketEvent("BAG_UPDATE", 1)
+	self:RegisterBucketEvent("BAG_UPDATE_DELAYED", 1)
+	self:RegisterBucketEvent("GET_ITEM_INFO_RECEIVED", 1)
 	self:RegisterEvent("MERCHANT_SHOW")
 	self:RegisterEvent("MERCHANT_CLOSED")
 end
 
 function core:OnEnable()
-	self:BAG_UPDATE()
+	self:BAG_UPDATE_DELAYED()
 	if MerchantFrame:IsVisible() then
 		self:MERCHANT_SHOW()
 	end
@@ -105,7 +106,7 @@ end
 core.item_value = item_value
 
 local player_level
-function core:BAG_UPDATE(updated_bags)
+function core:BAG_UPDATE_DELAYED()
 	table.wipe(drop_slots)
 	table.wipe(sell_slots)
 	table.wipe(slot_contents)
@@ -148,6 +149,7 @@ function core:BAG_UPDATE(updated_bags)
 	Debug("Junk updated", #drop_slots, #sell_slots, total_drop, total_sell, total)
 	self.events:Fire("Junk_Update", #drop_slots, #sell_slots, total_drop, total_sell, total)
 end
+core.GET_ITEM_INFO_RECEIVED = core.BAG_UPDATE_DELAYED
 
 -- The rest is utility functions used above:
 
