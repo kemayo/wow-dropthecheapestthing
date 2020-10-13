@@ -39,6 +39,7 @@ read_globals = {
     "GetAuctionBuyout",
 
     -- API functions
+    "C_Item",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",
     "ReagentBankButtonIDToInvSlotID",
@@ -68,6 +69,7 @@ read_globals = {
     "GetItemInfoInstant",
     "GetItemQualityColor",
     "GetTime",
+    "ItemLocation",
     "InCombatLockdown",
     "IsAltKeyDown",
     "IsControlKeyDown",
