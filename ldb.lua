@@ -28,7 +28,7 @@ function dataobject:OnClick(button)
 			local id = core.link_to_id(core.slot_contents[table.remove(slots, 1)])
 			if not id then return end -- this really shouldn't happen... but just in case
 			core.db.profile.never_consider[id] = true
-			core:BAG_UPDATE()
+			core:BAG_UPDATE_DELAYED()
 		else
 			-- just show the config
 			local config = core:GetModule("Config", true)
