@@ -153,10 +153,15 @@ core.GET_ITEM_INFO_RECEIVED = core.BAG_UPDATE_DELAYED
 
 -- The rest is utility functions used above:
 
+-- hardcoded things
+local never_consider = {
+	[40110] = true, -- Haunted Memento
+	[183616] = true, -- Accursed Keepsake
+}
 local filters = {
 	-- Never consider
 	function(bag, slot, itemid)
-		if db.profile.never_consider[itemid] then
+		if db.profile.never_consider[itemid] or never_consider[itemid] then
 			return false
 		end
 	end,
