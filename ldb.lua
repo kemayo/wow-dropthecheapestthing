@@ -119,7 +119,7 @@ function module:OnInitialize()
 						end,
 						set = function(info, key, v)
 							self.db.profile.text[key] = v
-							core:BAG_UPDATE()
+							core:BAG_UPDATE_DELAYED()
 						end,
 						values = {
 							item = "Cheapest item",

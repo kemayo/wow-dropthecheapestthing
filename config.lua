@@ -37,7 +37,7 @@ local function item_list_group(name, order, description, db_table)
 			local itemid = core.link_to_id(v) or tonumber(v)
 			db_table[itemid] = true
 			group.args.remove.args[tostring(itemid)] = removable_item(itemid)
-			core:BAG_UPDATE()
+			core:BAG_UPDATE_DELAYED()
 		end,
 		validate = function(info, v)
 			if v:match("^%d+$") or v:match("item:%d+") then
@@ -54,7 +54,7 @@ local function item_list_group(name, order, description, db_table)
 		func = function(info)
 			db_table[info.arg] = nil
 			group.args.remove.args[info[#info]] = nil
-			core:BAG_UPDATE()
+			core:BAG_UPDATE_DELAYED()
 		end,
 		args = {
 			about = {
@@ -77,7 +77,7 @@ function module:OnInitialize()
 		type = "group",
 		name = "DropTheCheapestThing",
 		get = function(info) return db.profile[info[#info]] end,
-		set = function(info, v) db.profile[info[#info]] = v; core:BAG_UPDATE() end,
+		set = function(info, v) db.profile[info[#info]] = v; core:BAG_UPDATE_DELAYED() end,
 		args = {
 			general = {
 				type = "group",
@@ -139,7 +139,7 @@ function module:OnInitialize()
 						inline = true,
 						order = 20,
 						get = function(info) return db.profile.low[info[#info]] end,
-						set = function(info, v) db.profile.low[info[#info]] = v; core:BAG_UPDATE() end,
+						set = function(info, v) db.profile.low[info[#info]] = v; core:BAG_UPDATE_DELAYED() end,
 						args = {
 							food = { name = "Food & drink", type = "toggle", order = 10 },
 							potion = { name = "Potions", type = "toggle", order = 20 },
