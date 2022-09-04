@@ -13,7 +13,7 @@ if Bagnon then
         local info = self:GetInfo()
         if info and info.id then
             local bag, slot = self:GetBag(), self:GetID()
-            if not (type(bag) == "number") then
+            if type(bag) ~= "number" then
                 return
             end
             local bagslot = core.encode_bagslot(bag, slot)
