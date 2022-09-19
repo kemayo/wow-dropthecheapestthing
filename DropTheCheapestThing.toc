@@ -15,6 +15,7 @@
 ## X-Website: https://www.wowace.com/projects/dropthecheapestthing
 ## X-License: BSD
 ## X-Curse-Project-ID: 17852
+## X-WoWI-ID: 12596
 
 #@no-lib-strip@
 embeds.xml
