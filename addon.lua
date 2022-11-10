@@ -8,6 +8,10 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
+-- compat:
+local GetContainerNumSlots = _G.GetContainerNumSlots or C_Container.GetContainerNumSlots
+local GetContainerItemLink = _G.GetContainerItemLink or C_Container.GetContainerItemLink
+
 local LE_ITEM_CLASS_CONSUMABLE_POTION = 1
 local LE_ITEM_CLASS_CONSUMABLE_ELIXIR = 2
 local LE_ITEM_CLASS_CONSUMABLE_FLASK = 3
