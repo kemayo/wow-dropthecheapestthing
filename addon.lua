@@ -9,6 +9,8 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
 
 -- compat:
+local PickupContainerItem = _G.PickupContainerItem or C_Container.PickupContainerItem
+local UseContainerItem = _G.UseContainerItem or C_Container.UseContainerItem
 local GetContainerNumSlots = _G.GetContainerNumSlots or C_Container.GetContainerNumSlots
 local GetContainerItemLink = _G.GetContainerItemLink or C_Container.GetContainerItemLink
 local GetContainerItemInfo = _G.GetContainerItemInfo or function(...)
