@@ -11,6 +11,12 @@ local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 -- compat:
 local GetContainerNumSlots = _G.GetContainerNumSlots or C_Container.GetContainerNumSlots
 local GetContainerItemLink = _G.GetContainerItemLink or C_Container.GetContainerItemLink
+local GetContainerItemInfo = _G.GetContainerItemInfo or function(...)
+	local info = C_Container.GetContainerItemInfo(...)
+	if info then
+		return info.iconFileID, info.stackCount, info.isLocked, info.quality, info.isReadable, info.hasLoot, info.hyperlink, info.isFiltered, info.hasNoValue, info.itemID, info.isBound
+	end
+end
 
 local LE_ITEM_CLASS_CONSUMABLE_POTION = 1
 local LE_ITEM_CLASS_CONSUMABLE_ELIXIR = 2
