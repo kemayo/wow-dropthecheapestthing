@@ -42,8 +42,11 @@ local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 	return is_soulbound
 end,})
 local item_quest = setmetatable({}, {__index = function(self, itemid)
-	local is_quest = core.CheckTooltipFor(nil, itemid, ITEM_BIND_QUEST)
-	self[itemid] = is_quest
+	local bindType = select(14, GetItemInfo(itemid))
+	local is_quest = bindType == LE_ITEM_BIND_QUEST
+	if bindType ~= nil then -- just in case
+		self[itemid] = is_quest
+	end
 	return is_quest
 end,})
 
@@ -389,32 +392,3 @@ function drop_bagslot(bagslot, sell_only)
 	return slot_values[bagslot] or 0
 end
 core.drop_bagslot = drop_bagslot
-
-do
-	local tooltip
-	function core.CheckTooltipFor(bag, slot, text)
-		if not tooltip then
-			tooltip = CreateFrame("GameTooltip", "DropCheapScanningTooltip", nil, "GameTooltipTemplate")
-			tooltip:SetOwner(WorldFrame, "ANCHOR_NONE")
-		end
-		tooltip:ClearLines()
-		if slot and not bag then
-			-- just showing tooltip for an itemid
-			-- uses rather innocent checking so that slot can be a link or an itemid
-			local link = tostring(slot) -- so that ":match" is guaranteed to be okay
-			if not link:match("item:") then
-				link = "item:"..link
-			end
-			tooltip:SetHyperlink(link)
-		else
-			tooltip:SetBagItem(bag, slot)
-		end
-		for i=2, tooltip:NumLines() do
-			local left = _G["DropCheapScanningTooltipTextLeft"..i]
-			--local right = _G["DropCheapScanningTooltipTextRight"..i]
-			if left and left:IsShown() and string.match(left:GetText(), text) then return true end
-			--if right and right:IsShown() and string.match(right:GetText(), text) then return true end
-		end
-		return false
-	end
-end
