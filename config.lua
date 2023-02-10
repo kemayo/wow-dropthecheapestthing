@@ -163,6 +163,7 @@ function module:OnInitialize()
 						type = "toggle",
 						name = "Unknown appearances",
 						desc = "Consider items whose appearances you don't yet know",
+						disabled = function() return not _G.C_TransmogCollection end,
 						order = 50,
 					},
 				}
