@@ -6,7 +6,8 @@ core.Debug = Debug
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
-	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents
+	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents,
+	GetAppearanceAndSource, CanLearnAppearance, HasAppearance
 
 -- compat:
 local PickupContainerItem = _G.PickupContainerItem or C_Container.PickupContainerItem
@@ -73,6 +74,7 @@ function core:OnInitialize()
 			full_stacks = false,
 			valueless = false,
 			soulbound = false,
+			appearance = false, -- consider unknown appearances?
 			low = {
 				food = false,
 				scroll = false,
@@ -226,6 +228,19 @@ local filters = {
 			return false
 		end
 	end,
+	-- Appearance known?
+	function(bag, slot)
+		if db.profile.appearance then
+			return
+		end
+		local link = GetContainerItemLink(bag, slot)
+		if link then
+			-- print(link, GetAppearanceAndSource(link), HasAppearance(link))
+			if GetAppearanceAndSource(link) and not HasAppearance(link) then
+				return false
+			end
+		end
+	end,
 }
 
 function GetConsideredItemInfo(bag, slot)
@@ -267,6 +282,89 @@ function GetConsideredItemInfo(bag, slot)
 
 	local _, count = GetContainerItemInfo(bag, slot)
 	return itemid, link, count, stacksize, quality, value, source, action, sellable
+end
+
+do
+	local brokenItems = {
+		-- itemid : {appearanceid, sourceid}
+		[153268] = {25124, 90807}, -- Enclave Aspirant's Axe
+		[153316] = {25123, 90885}, -- Praetor's Ornamental Edge
+	}
+	function GetAppearanceAndSource(itemLinkOrID)
+		local itemID = GetItemInfoInstant(itemLinkOrID)
+		if not itemID then return end
+		local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLinkOrID)
+		if not appearanceID then
+			-- sometimes the link won't actually give us an appearance, but itemID will
+			-- e.g. mythic Drape of Iron Sutures from Shadowmoon Burial Grounds
+			appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemID)
+		end
+		if not appearanceID and brokenItems[itemID] then
+			-- ...and there's a few that just need to be hardcoded
+			appearanceID, sourceID = unpack(brokenItems[itemID])
+		end
+		return appearanceID, sourceID
+	end
+	local canLearnCache = {}
+	function CanLearnAppearance(itemLinkOrID)
+		if not _G.C_Transmog then return false end
+		local itemID = GetItemInfoInstant(itemLinkOrID)
+		if not itemID then return end
+		if canLearnCache[itemID] ~= nil then
+			return canLearnCache[itemID]
+		end
+		-- First, is this a valid source at all?
+		local canBeChanged, noChangeReason, canBeSource, noSourceReason = C_Transmog.CanTransmogItem(itemID)
+		if canBeSource == nil or noSourceReason == 'NO_ITEM' then
+			-- data loading, don't cache this
+			return
+		end
+		if not canBeSource then
+			canLearnCache[itemID] = false
+			return false
+		end
+		local appearanceID, sourceID = GetAppearanceAndSource(itemLinkOrID)
+		if not appearanceID then
+			canLearnCache[itemID] = false
+			return false
+		end
+		local hasData, canCollect = C_TransmogCollection.PlayerCanCollectSource(sourceID)
+		if hasData then
+			canLearnCache[itemID] = canCollect
+		end
+		return canLearnCache[itemID]
+	end
+	local hasAppearanceCache = {}
+	function HasAppearance(itemLinkOrID)
+		local itemID = GetItemInfoInstant(itemLinkOrID)
+		if not itemID then return end
+		if hasAppearanceCache[itemID] ~= nil then
+			-- only use the cache if we need the more expensive checks below...
+			return hasAppearanceCache[itemID]
+		end
+		if C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID) then
+			-- short-circuit further checks because this specific item is known
+			hasAppearanceCache[itemID] = true
+			return true
+		end
+		--[[
+		-- Although this isn't known, its appearance might be known from another item
+		local appearanceID = GetAppearanceAndSource(itemLinkOrID)
+		if not appearanceID then
+			hasAppearanceCache[itemID] = false
+			return
+		end
+		local sources = C_TransmogCollection.GetAllAppearanceSources(appearanceID)
+		if not sources then return end
+		for _, sourceID in ipairs(sources) do
+			if C_TransmogCollection.PlayerHasTransmogItemModifiedAppearance(sourceID) then
+				hasAppearanceCache[itemID] = true
+				return true
+			end
+		end
+		--]]
+		return false
+	end
 end
 
 function slot_sorter(a,b)

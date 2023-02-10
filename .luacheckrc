@@ -41,6 +41,8 @@ read_globals = {
     -- API functions
     "C_Item",
     "C_Container",
+    "C_Transmog",
+    "C_TransmogCollection",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",
     "ReagentBankButtonIDToInvSlotID",

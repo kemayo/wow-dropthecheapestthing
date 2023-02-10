@@ -159,6 +159,12 @@ function module:OnInitialize()
 						desc = "Some items technically have no value. These are more likely than average to be interesting toy or holiday items. Note that this includes your hearthstone...",
 						order = 40,
 					},
+					appearance = {
+						type = "toggle",
+						name = "Unknown appearances",
+						desc = "Consider items whose appearances you don't yet know",
+						order = 50,
+					},
 				}
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
