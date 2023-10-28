@@ -116,8 +116,14 @@ end
 -- returns: price, source, vendorable
 function item_value(item, force_vendor)
 	local vendor = select(11, GetItemInfo(item)) or 0
-	if db.profile.auction and GetAuctionBuyout and not force_vendor then
-		local auction = GetAuctionBuyout(item) or 0
+	if db.profile.auction and (TSM_API or Auctionator) and not force_vendor then
+		local auction
+		if TSM_API then
+			local tsm_item = TSM_API.ToItemString(item)
+			auction = (TSM_API.GetCustomPriceValue("DBRecent", tsm_item)) or (TSM_API.GetCustomPriceValue("DBMarket", tsm_item)) or 0
+		else
+			auction = Auctionator.API.v1.GetAuctionPriceByItemLink('DropTheCheapestThing', item) or 0
+		end
 		if auction > vendor then
 			return auction, 'auction', vendor > 0
 		end
