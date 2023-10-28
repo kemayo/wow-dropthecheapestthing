@@ -141,7 +141,7 @@ function core:BAG_UPDATE_DELAYED()
 	local total, total_sell, total_drop = 0, 0, 0
 	player_level = UnitLevel('player')
 
-	for bag = 0, NUM_BAG_SLOTS do
+	for bag = 0, NUM_BAG_SLOTS + 1 do
 		for slot = 1, GetContainerNumSlots(bag) do
 			local itemid, link, count, stacksize, quality, value, source, forced, sellable = GetConsideredItemInfo(bag, slot)
 			if itemid then
