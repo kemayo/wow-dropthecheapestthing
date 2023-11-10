@@ -24,6 +24,7 @@ local GetContainerItemInfo = _G.GetContainerItemInfo or function(...)
 		return info.iconFileID, info.stackCount, info.isLocked, info.quality, info.isReadable, info.hasLoot, info.hyperlink, info.isFiltered, info.hasNoValue, info.itemID, info.isBound
 	end
 end
+local NUM_REAGENTBAG_SLOTS = _G.NUM_REAGENTBAG_SLOTS or 0
 
 local LE_ITEM_CLASS_CONSUMABLE_POTION = 1
 local LE_ITEM_CLASS_CONSUMABLE_ELIXIR = 2
@@ -141,7 +142,7 @@ function core:BAG_UPDATE_DELAYED()
 	local total, total_sell, total_drop = 0, 0, 0
 	player_level = UnitLevel('player')
 
-	for bag = 0, NUM_BAG_SLOTS do
+	for bag = 0, NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
 			local itemid, link, count, stacksize, quality, value, source, forced, sellable = GetConsideredItemInfo(bag, slot)
 			if itemid then
