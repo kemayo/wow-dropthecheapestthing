@@ -25,3 +25,5 @@ config.lua
 ldb.lua
 button.lua
 bagnon.lua
+
+compatibility.lua

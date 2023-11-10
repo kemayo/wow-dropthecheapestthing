@@ -22,6 +22,7 @@ globals = {
     "UpdateContainerFrameAnchors",
 
     "Bagnon",
+    "GetAuctionBuyout",
 }
 
 read_globals = {
@@ -36,7 +37,7 @@ read_globals = {
 
     -- misc custom, third party libraries
     "LibStub", "tekDebug",
-    "GetAuctionBuyout",
+    "TSM_API", "Auctionator", "RECrystallize_PriceCheck", "RECrystallize_PriceCheckItemID",
 
     -- API functions
     "C_Item",
