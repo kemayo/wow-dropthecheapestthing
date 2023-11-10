@@ -92,6 +92,7 @@ read_globals = {
     -- FrameXML frames
     "BankFrame",
     "MerchantFrame",
+    "MerchantSellAllJunkButton",
     "GameTooltip",
     "UIParent",
     "WorldFrame",

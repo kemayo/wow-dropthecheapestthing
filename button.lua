@@ -7,6 +7,7 @@ function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("Merchant", {
 		profile = {
 			button = true,
+			blizzard = false,
 			auto = false,
 		},
 	})
@@ -27,6 +28,13 @@ function module:OnInitialize()
 						desc = "Show the 'sell all' button on the merchant frame.",
 						order = 10,
 					},
+					blizzard = {
+						type = "toggle",
+						name = "Take over",
+						desc = "Take over the built-in sell-junk button",
+						order = 15,
+						disabled = function() return not MerchantSellAllJunkButton end,
+					},
 					auto = {
 						type = "toggle",
 						name = "Auto-sell",
@@ -39,13 +47,9 @@ function module:OnInitialize()
 	end
 end
 
-local button_size = 22
 local texture
 
-local button = CreateFrame("Button", nil, MerchantFrame)
-button:SetWidth(button_size)
-button:SetHeight(button_size)
-button:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 64, -32)
+local button = CreateFrame("Button", "DropTheCheapestThingMerchantButton", MerchantFrame)
 button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
 
 texture = button:CreateTexture(nil, "BACKGROUND")
@@ -65,7 +69,7 @@ button:SetDisabledTexture(texture)
 
 button:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
-	GameTooltip:AddLine("Junk To Sell")
+	GameTooltip:AddLine(_G.SELL_ALL_JUNK_ITEMS or "Junk To Sell")
 	core.add_junk_to_tooltip(GameTooltip, core.sell_slots)
 	GameTooltip:AddLine("|cffeda55fClick|r to sell everything.", 0.2, 1, 0.2, 1)
 	GameTooltip:Show()
@@ -92,6 +96,14 @@ end)
 button:Hide()
 
 local function update_button()
+	button:ClearAllPoints()
+	if db.profile.blizzard and MerchantSellAllJunkButton then
+		button:SetAllPoints(MerchantSellAllJunkButton)
+		button:SetFrameLevel(MerchantSellAllJunkButton:GetFrameLevel() + 1)
+	else
+		button:SetSize(22, 22)
+		button:SetPoint("TOPLEFT", MerchantFrame, "TOPLEFT", 64, -32)
+	end
 	if #core.sell_slots > 0 then
 		button:Enable()
 	else
