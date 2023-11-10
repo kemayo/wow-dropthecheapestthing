@@ -274,7 +274,7 @@ function GetConsideredItemInfo(bag, slot)
 		end
 	end
 
-	local value, source, sellable = item_value(link, quality < db.profile.auction_threshold)
+	local value, source, sellable = item_value(link, quality < db.profile.auction_threshold or slot_soulbound[encode_bagslot(bag, slot)])
 	if (not value) or value == 0 then
 		if db.profile.valueless or action then
 			-- forced things should _always_ go through, otherwise it depends on the valueless setting
