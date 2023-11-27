@@ -11,7 +11,7 @@ local function removable_item(itemid)
 	return {
 		type = "execute",
 		name = item_name,
-		desc = ("%s %s"):format(itemType, itemSubtype),
+		desc = (itemType and itemSubtype) and ("%s %s"):format(itemType, itemSubtype) or UNKNOWN,
 		arg = itemid,
 	}
 end
