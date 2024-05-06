@@ -33,6 +33,19 @@ local LE_ITEM_CLASS_CONSUMABLE_FOOD = 5
 local LE_ITEM_CLASS_CONSUMABLE_BANDAGE = 7
 local LE_ITEM_CLASS_CONSUMABLE_OTHER = 8
 
+local function PlayerHasTransmogByItemInfo(itemLinkOrID)
+	-- Cata classic is specifically missing C_TransmogCollection.PlayerHasTransmogByItemInfo
+	if C_TransmogCollection.PlayerHasTransmogByItemInfo then
+		return C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID)
+	end
+	local itemID = GetItemInfoInstant(itemLinkOrID)
+	if itemID then
+		-- this is a bit worse, because of items with varying appearances based on the link-details
+		-- but because this path should only be hit in classic, we should be fine
+		return C_TransmogCollection.PlayerHasTransmog(itemID)
+	end
+end
+
 local drop_slots = {}
 local sell_slots = {}
 local slot_contents = {}
@@ -347,7 +360,7 @@ do
 			-- only use the cache if we need the more expensive checks below...
 			return hasAppearanceCache[itemID]
 		end
-		if C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID) then
+		if PlayerHasTransmogByItemInfo(itemLinkOrID) then
 			-- short-circuit further checks because this specific item is known
 			hasAppearanceCache[itemID] = true
 			return true
