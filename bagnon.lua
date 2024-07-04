@@ -2,7 +2,7 @@ local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
 
 if Bagnon then
     local UpdateBorder = Bagnon.Item.UpdateBorder
-    local r, g, b = GetItemQualityColor(0)
+    local r, g, b = C_Item.GetItemQualityColor(0)
 
     function Bagnon.Item:UpdateBorder(...)
         -- First, do the core bagnon behavior for stuff like new-item flashing

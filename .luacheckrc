@@ -71,7 +71,6 @@ read_globals = {
     "GetItemFamily",
     "GetItemInfo",
     "GetItemInfoInstant",
-    "GetItemQualityColor",
     "GetTime",
     "ItemLocation",
     "InCombatLockdown",

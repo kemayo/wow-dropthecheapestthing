@@ -38,7 +38,7 @@ local function PlayerHasTransmogByItemInfo(itemLinkOrID)
 	if C_TransmogCollection.PlayerHasTransmogByItemInfo then
 		return C_TransmogCollection.PlayerHasTransmogByItemInfo(itemLinkOrID)
 	end
-	local itemID = GetItemInfoInstant(itemLinkOrID)
+	local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
 	if itemID then
 		-- this is a bit worse, because of items with varying appearances based on the link-details
 		-- but because this path should only be hit in classic, we should be fine
@@ -61,7 +61,7 @@ local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 	return is_soulbound
 end,})
 local item_quest = setmetatable({}, {__index = function(self, itemid)
-	local bindType = select(14, GetItemInfo(itemid))
+	local bindType = select(14, C_Item.GetItemInfo(itemid))
 	local is_quest = bindType == LE_ITEM_BIND_QUEST
 	if bindType ~= nil then -- just in case
 		self[itemid] = is_quest
@@ -129,7 +129,7 @@ end
 
 -- returns: price, source, vendorable
 function item_value(link, force_vendor)
-	local vendor = select(11, GetItemInfo(link)) or 0
+	local vendor = select(11, C_Item.GetItemInfo(link)) or 0
 	if db.profile.auction and GetAuctionBuyout and not force_vendor then
 		local auction = GetAuctionBuyout(link) or 0
 		if auction > vendor then
@@ -267,7 +267,7 @@ function GetConsideredItemInfo(bag, slot)
 	if not link then return end -- empty slot!
 
 	-- name, link, quality, ilvl, required level, classstring, subclassstring, stacksize, equipslot, texture, value, class, subclass
-	local _, _, quality, ilvl, reqLevel, _, _, stacksize, _, _, _, class, subclass = GetItemInfo(link)
+	local _, _, quality, ilvl, reqLevel, _, _, stacksize, _, _, _, class, subclass = C_Item.GetItemInfo(link)
 	if not quality then return end -- if we don't know the quality now, something weird is going on
 
 	local itemid = link_to_id(link)
@@ -309,7 +309,7 @@ do
 		[153316] = {25123, 90885}, -- Praetor's Ornamental Edge
 	}
 	function GetAppearanceAndSource(itemLinkOrID)
-		local itemID = GetItemInfoInstant(itemLinkOrID)
+		local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
 		if not itemID then return end
 		local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLinkOrID)
 		if not appearanceID then
@@ -326,7 +326,7 @@ do
 	local canLearnCache = {}
 	function CanLearnAppearance(itemLinkOrID)
 		if not _G.C_Transmog then return false end
-		local itemID = GetItemInfoInstant(itemLinkOrID)
+		local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
 		if not itemID then return end
 		if canLearnCache[itemID] ~= nil then
 			return canLearnCache[itemID]
@@ -354,7 +354,7 @@ do
 	end
 	local hasAppearanceCache = {}
 	function HasAppearance(itemLinkOrID)
-		local itemID = GetItemInfoInstant(itemLinkOrID)
+		local itemID = C_Item.GetItemInfoInstant(itemLinkOrID)
 		if not itemID then return end
 		if hasAppearanceCache[itemID] ~= nil then
 			-- only use the cache if we need the more expensive checks below...
@@ -432,7 +432,7 @@ function pretty_bagslot_name(bagslot, show_name, show_count, force_count)
 	if show_count == nil then show_count = true end
 	local link = slot_contents[bagslot]
 	local name = link:gsub("[%[%]]", "")
-	local max = select(8, GetItemInfo(link)) or 1
+	local max = select(8, C_Item.GetItemInfo(link)) or 1
 	return (show_name and link:gsub("[%[%]]", "") or '') ..
 		((show_name and show_count) and ' ' or '') ..
 		((show_count and (force_count or max > 1)) and (slot_counts[bagslot] .. '/' .. max) or '')

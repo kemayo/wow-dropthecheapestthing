@@ -62,7 +62,7 @@ core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_
 		WHITE .. (db.junkcount and drop_count or '') .. END ..
 		WHITE .. ((db.junkcount and db.totalprice) and ' @ ' or '') .. END ..
 		WHITE .. (db.totalprice and core.copper_to_pretty_money(drop_total) or '') .. END
-	dataobject.icon = select(10, GetItemInfo(core.slot_contents[core.drop_slots[1]]))
+	dataobject.icon = select(10, C_Item.GetItemInfo(core.slot_contents[core.drop_slots[1]]))
 end)
 
 function module:OnInitialize()

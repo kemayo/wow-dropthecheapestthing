@@ -3,11 +3,11 @@ local module = core:NewModule("Config")
 local db
 
 local function item_name(info)
-	return GetItemInfo(info.arg) or 'itemid:'..tostring(info.arg)
+	return C_Item.GetItemInfo(info.arg) or 'itemid:'..tostring(info.arg)
 end
 
 local function removable_item(itemid)
-	local _, itemType, itemSubtype = GetItemInfoInstant(itemid)
+	local _, itemType, itemSubtype = C_Item.GetItemInfoInstant(itemid)
 	return {
 		type = "execute",
 		name = item_name,
