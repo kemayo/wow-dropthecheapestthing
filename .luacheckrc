@@ -100,7 +100,6 @@ read_globals = {
 
     -- FrameXML API
     "CreateFrame",
-    "InterfaceOptionsFrame_OpenToCategory",
     "ToggleDropDownMenu",
     "UIDropDownMenu_AddButton",
     "UISpecialFrames",
