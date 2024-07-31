@@ -21,7 +21,7 @@ globals = {
     "StaticPopupDialogs",
     "UpdateContainerFrameAnchors",
 
-    "Bagnon",
+    "Bagnon", "Baganator",
     "GetAuctionBuyout",
 }
 
@@ -40,6 +40,7 @@ read_globals = {
     "TSM_API", "Auctionator", "RECrystallize_PriceCheck", "RECrystallize_PriceCheckItemID",
 
     -- API functions
+    "C_AddOns",
     "C_Item",
     "C_Container",
     "C_Transmog",

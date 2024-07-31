@@ -22,6 +22,6 @@ addon.lua
 config.lua
 ldb.lua
 button.lua
-bagnon.lua
 
+integration.lua
 compatibility.lua
