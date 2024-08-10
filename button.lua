@@ -75,7 +75,7 @@ button:SetDisabledTexture(texture)
 
 button:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
-	GameTooltip:AddLine(_G.SELL_ALL_JUNK_ITEMS or "Junk To Sell")
+	GameTooltip:AddLine(_G.SELL_ALL_JUNK_ITEMS_EXCLUDE_FLAG or _G.SELL_ALL_JUNK_ITEMS or "Junk To Sell")
 	core.add_junk_to_tooltip(GameTooltip, core.sell_slots)
 	local tosell = #core.sell_slots
 	if db.cautious and tosell > BUYBACK_ITEMS_PER_PAGE then
