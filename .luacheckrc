@@ -106,6 +106,7 @@ read_globals = {
     "UISpecialFrames",
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
+    "EventRegistry",
 
     -- FrameXML Constants
     "BACKPACK_CONTAINER",

@@ -129,7 +129,7 @@ local function update_button()
 	else
 		button:Disable()
 	end
-	if db.profile.button then
+	if db.profile.button and MerchantFrame.selectedTab == 1 then
 		button:Show()
 	else
 		button:Hide()
@@ -143,4 +143,11 @@ core.RegisterCallback("Button", "Merchant_Open", function()
 	if db.profile.auto then
 		button:Click()
 	end
+	EventRegistry:RegisterCallback("MerchantFrame.BuyBackTabShow", update_button, button)
+	EventRegistry:RegisterCallback("MerchantFrame.MerchantTabShow", update_button, button)
+end)
+
+core.RegisterCallback("Button", "Merchant_Close", function()
+	EventRegistry:UnregisterCallback("MerchantFrame.BuyBackTabShow", button)
+	EventRegistry:UnregisterCallback("MerchantFrame.MerchantTabShow", button)
 end)
