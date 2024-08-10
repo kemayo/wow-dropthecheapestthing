@@ -116,6 +116,7 @@ read_globals = {
     "BANK",
     "BANK_BAG_PURCHASE",
     "BANK_CONTAINER",
+    "BUYBACK_ITEMS_PER_PAGE",
     "CONFIRM_BUY_BANK_SLOT",
     "DEFAULT",
     "EQUIP_CONTAINER",

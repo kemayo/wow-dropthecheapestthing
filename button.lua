@@ -9,6 +9,7 @@ function module:OnInitialize()
 			button = true,
 			blizzard = false,
 			auto = false,
+			cautious = true,
 		},
 	})
 	db = self.db
@@ -41,6 +42,11 @@ function module:OnInitialize()
 						desc = "Automatically sell all 'junk' items when you visit a merchant.",
 						order = 20,
 					},
+					cautious = {
+						type = "toggle",
+						name = "Be cautious",
+						desc = ("Don't sell more than %d items at once, so you can use buyback if there was anything unexpected"):format(BUYBACK_ITEMS_PER_PAGE),
+					}
 				},
 			},
 		}
@@ -71,7 +77,12 @@ button:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(button, "ANCHOR_RIGHT")
 	GameTooltip:AddLine(_G.SELL_ALL_JUNK_ITEMS or "Junk To Sell")
 	core.add_junk_to_tooltip(GameTooltip, core.sell_slots)
-	GameTooltip:AddLine("|cffeda55fClick|r to sell everything.", 0.2, 1, 0.2, 1)
+	local tosell = #core.sell_slots
+	if db.cautious and tosell > BUYBACK_ITEMS_PER_PAGE then
+		GameTooltip:AddLine(("|cffeda55fClick|r to sell first %d of %d items"):format(tosell, BUYBACK_ITEMS_PER_PAGE), 0.2, 1, 0.2, 1)
+	else
+		GameTooltip:AddLine(("|cffeda55fClick|r to sell %d %s"):format(tosell, tosell > 1 and "items" or "item"), 0.2, 1, 0.2, 1)
+	end
 	GameTooltip:Show()
 end)
 button:SetScript("OnLeave", function()
@@ -80,15 +91,24 @@ end)
 
 button:SetScript("OnClick", function()
 	local total = 0
+	local numsold = 0
 	for _, bagslot in ipairs(core.sell_slots) do
 		local value = core.drop_bagslot(bagslot, true)
 		if not value then
 			break
 		end
+		numsold = numsold + 1
 		total = total + value
+		if db.cautious and numsold >= BUYBACK_ITEMS_PER_PAGE then
+			break
+		end
 	end
 	if #core.sell_slots > 1 then
-		DEFAULT_CHAT_FRAME:AddMessage("Total value: " .. core.copper_to_pretty_money(total))
+		DEFAULT_CHAT_FRAME:AddMessage(("Sold %d %s for %s"):format(
+			numsold,
+			numsold > 1 and "items" or "item",
+			core.copper_to_pretty_money(total)
+		))
 	end
 	button:Disable()
 end)
