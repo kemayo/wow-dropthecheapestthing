@@ -12,7 +12,7 @@ function module:OnInitialize()
 			cautious = true,
 		},
 	})
-	db = self.db
+	db = self.db.profile
 
 	local config = core:GetModule("Config", true)
 	if config then
@@ -20,8 +20,8 @@ function module:OnInitialize()
 			merchant = {
 				type = "group",
 				name = "Merchant",
-				get = function(info) return db.profile[info[#info]] end,
-				set = function(info, v) db.profile[info[#info]] = v end,
+				get = function(info) return db[info[#info]] end,
+				set = function(info, v) db[info[#info]] = v end,
 				args = {
 					button = {
 						type = "toggle",
@@ -79,7 +79,7 @@ button:SetScript("OnEnter", function()
 	core.add_junk_to_tooltip(GameTooltip, core.sell_slots)
 	local tosell = #core.sell_slots
 	if db.cautious and tosell > BUYBACK_ITEMS_PER_PAGE then
-		GameTooltip:AddLine(("|cffeda55fClick|r to sell first %d of %d items"):format(tosell, BUYBACK_ITEMS_PER_PAGE), 0.2, 1, 0.2, 1)
+		GameTooltip:AddLine(("|cffeda55fClick|r to sell first %d of %d items"):format(BUYBACK_ITEMS_PER_PAGE, tosell), 0.2, 1, 0.2, 1)
 	else
 		GameTooltip:AddLine(("|cffeda55fClick|r to sell %d %s"):format(tosell, tosell > 1 and "items" or "item"), 0.2, 1, 0.2, 1)
 	end
@@ -117,7 +117,7 @@ button:Hide()
 
 local function update_button()
 	button:ClearAllPoints()
-	if db.profile.blizzard and MerchantSellAllJunkButton then
+	if db.blizzard and MerchantSellAllJunkButton then
 		button:SetAllPoints(MerchantSellAllJunkButton)
 		button:SetFrameLevel(MerchantSellAllJunkButton:GetFrameLevel() + 1)
 	else
@@ -129,7 +129,7 @@ local function update_button()
 	else
 		button:Disable()
 	end
-	if db.profile.button and MerchantFrame.selectedTab == 1 then
+	if db.button and MerchantFrame.selectedTab == 1 then
 		button:Show()
 	else
 		button:Hide()
@@ -140,7 +140,7 @@ core.RegisterCallback("Button", "Junk_Update", update_button)
 
 core.RegisterCallback("Button", "Merchant_Open", function()
 	update_button()
-	if db.profile.auto then
+	if db.auto then
 		button:Click()
 	end
 	EventRegistry:RegisterCallback("MerchantFrame.BuyBackTabShow", update_button, button)
