@@ -450,14 +450,17 @@ function copper_to_pretty_money(c)
 end
 core.copper_to_pretty_money = copper_to_pretty_money
 
-function add_junk_to_tooltip(tooltip, slots)
+function add_junk_to_tooltip(tooltip, slots, divider_position)
 	slots = slots or drop_slots
 	if #slots == 0 then
 		tooltip:AddLine("Nothing")
 		return
 	else
 		local total = 0
-		for _, bagslot in ipairs(slots) do
+		for i, bagslot in ipairs(slots) do
+			if i == divider_position then
+				tooltip:AddDoubleLine("------------", "------")
+			end
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
 				(slot_values[bagslot] ~= slot_weightedvalues[bagslot] and (' (' .. copper_to_pretty_money(slot_weightedvalues[bagslot]) .. ')') or '') ..
 				(db.profile.auction and
