@@ -1,4 +1,4 @@
-## Interface: 110002, 110000, 40400, 11502
+## Interface: 110007, 40401, 11505
 ## Title: DropTheCheapestThing
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
