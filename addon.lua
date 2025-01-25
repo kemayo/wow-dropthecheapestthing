@@ -458,7 +458,7 @@ function add_junk_to_tooltip(tooltip, slots, divider_position)
 	else
 		local total = 0
 		for i, bagslot in ipairs(slots) do
-			if i == divider_position then
+			if i - 1 == divider_position then
 				tooltip:AddDoubleLine("------------", "------")
 			end
 			tooltip:AddDoubleLine(pretty_bagslot_name(bagslot), copper_to_pretty_money(slot_values[bagslot]) ..
