@@ -1,13 +1,26 @@
-## Interface: 110007, 40401, 11505
+## Interface: 110100, 40402, 11506
 ## Title: DropTheCheapestThing
 ## Notes: Drop the cheapest thing you're carrying
 ## Author: Kemayo
 ## Version: @project-version@
+## IconTexture: Interface/Icons/INV_Misc_Bag_22
 ## OptionalDeps: Ace3, LibDBIcon-1.0, tekDebug, Bagnon
 ## SavedVariables: DropTheCheapestThingDB
 ## LoadManagers: AddonLoader
 ## X-LoadOn-Always: delayed
 ## X-Category: Inventory
+
+## Category-enUS: Inventory
+## Category-deDE: Inventar
+## Category-esES: Inventario
+## Category-esMX: Inventario
+## Category-frFR: Inventaire
+## Category-itIT: Inventario
+## Category-koKR: 소지품
+## Category-ptBR: Inventário
+## Category-ruRU: Предметы
+## Category-zhCN: 物品栏
+## Category-zhTW: 物品欄
 
 ## X-Website: https://www.wowace.com/projects/dropthecheapestthing
 ## X-License: BSD
