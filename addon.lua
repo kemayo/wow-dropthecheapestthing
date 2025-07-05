@@ -253,8 +253,8 @@ local filters = {
 		end
 		local link = GetContainerItemLink(bag, slot)
 		if link then
-			-- print(link, GetAppearanceAndSource(link), HasAppearance(link))
-			if GetAppearanceAndSource(link) and not HasAppearance(link) then
+			-- print(link, CanLearnAppearance(link), GetAppearanceAndSource(link), HasAppearance(link))
+			if CanLearnAppearance(link) and GetAppearanceAndSource(link) and not HasAppearance(link) then
 				return false
 			end
 		end
