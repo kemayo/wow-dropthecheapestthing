@@ -11,7 +11,7 @@ core.Debug = Debug
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
 	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents,
-	GetAppearanceAndSource, CanLearnAppearance, HasAppearance
+	GetAppearanceAndSource, CanLearnAppearance, HasAppearance, CanTransmogItem
 
 -- compat:
 local PickupContainerItem = _G.PickupContainerItem or C_Container.PickupContainerItem
@@ -323,6 +323,22 @@ do
 		end
 		return appearanceID, sourceID
 	end
+	function CanTransmogItem(itemLink)
+		local itemID = C_Item.GetItemInfoInstant(itemLink)
+		if itemID then
+			if C_Transmog.CanTransmogItem then
+				local canBeChanged, noChangeReason, canBeSource, noSourceReason = C_Transmog.CanTransmogItem(itemID)
+				return canBeSource, noSourceReason
+			else
+				-- Midnight
+				local appearanceID, sourceID = C_TransmogCollection.GetItemInfo(itemLink)
+				if sourceID then
+					local info = C_TransmogCollection.GetSourceInfo(sourceID)
+					return info and info.playerCanCollect -- info.isValidSourceForPlayer also exists, seems to be whether the player could actually transmog it
+				end
+			end
+		end
+	end
 	local canLearnCache = {}
 	function CanLearnAppearance(itemLinkOrID)
 		if not _G.C_Transmog then return false end
@@ -332,7 +348,7 @@ do
 			return canLearnCache[itemID]
 		end
 		-- First, is this a valid source at all?
-		local canBeChanged, noChangeReason, canBeSource, noSourceReason = C_Transmog.CanTransmogItem(itemID)
+		local canBeSource, noSourceReason = CanTransmogItem(itemID)
 		if canBeSource == nil or noSourceReason == 'NO_ITEM' then
 			-- data loading, don't cache this
 			return
