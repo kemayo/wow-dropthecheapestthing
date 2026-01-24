@@ -107,6 +107,7 @@ read_globals = {
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
     "EventRegistry",
+    "Settings",
 
     -- FrameXML Constants
     "BACKPACK_CONTAINER",

@@ -2,9 +2,9 @@ local myname, ns = ...
 
 ns.CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
-local core = LibStub("AceAddon-3.0"):NewAddon("DropTheCheapestThing", "AceEvent-3.0", "AceBucket-3.0")
+local core = LibStub("AceAddon-3.0"):NewAddon(myname, "AceEvent-3.0", "AceBucket-3.0")
 
-local debugf = tekDebug and tekDebug:GetFrame("DropTheCheapestThing")
+local debugf = tekDebug and tekDebug:GetFrame(myname)
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", tostringall(...))) end end
 core.Debug = Debug
 

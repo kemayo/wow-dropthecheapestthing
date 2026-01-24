@@ -1,4 +1,6 @@
-local core = LibStub("AceAddon-3.0"):GetAddon("DropTheCheapestThing")
+local myname, ns = ...
+
+local core = LibStub("AceAddon-3.0"):GetAddon(myname)
 local module = core:NewModule("Config")
 local db
 
@@ -176,12 +178,12 @@ function module:OnInitialize()
 	self.plugins = {}
 	-- self.options = options
 
-	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable("DropTheCheapestThing", options)
-	LibStub("AceConfigDialog-3.0"):AddToBlizOptions("DropTheCheapestThing", "DropTheCheapestThing")
+	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(myname, options)
+	self.categoryID = select(2, LibStub("AceConfigDialog-3.0"):AddToBlizOptions(myname, myname))
 end
 
 function module:ShowConfig()
-	LibStub("AceConfigDialog-3.0"):Open("DropTheCheapestThing")
+	Settings.OpenToCategory(self.categoryID)
 end
 
 SLASH_DROPTHECHEAPESTTHING1 = "/dropcheap"
