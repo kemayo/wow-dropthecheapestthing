@@ -90,20 +90,8 @@ button:SetScript("OnLeave", function()
 end)
 
 button:SetScript("OnClick", function()
-	local total = 0
-	local numsold = 0
-	for _, bagslot in ipairs(core.sell_slots) do
-		local value = core.drop_bagslot(bagslot, true)
-		if not value then
-			break
-		end
-		numsold = numsold + 1
-		total = total + value
-		if db.cautious and numsold >= BUYBACK_ITEMS_PER_PAGE then
-			break
-		end
-	end
-	if #core.sell_slots > 1 then
+	local numsold, total = core.API.Sell(db.cautious and BUYBACK_ITEMS_PER_PAGE or true)
+	if numsold > 1 then
 		DEFAULT_CHAT_FRAME:AddMessage(("Sold %d %s for %s"):format(
 			numsold,
 			numsold > 1 and "items" or "item",
