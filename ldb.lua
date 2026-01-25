@@ -12,9 +12,9 @@ local dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 })
 
 function dataobject:OnTooltipShow()
-	self:AddLine("Junk To "..(MerchantFrame:IsVisible() and "Sell" or "Drop"))
-	core.add_junk_to_tooltip(self, MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots)
-	self:AddLine("|cffeda55fShift-Click|r to ".. (MerchantFrame:IsVisible() and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
+	self:AddLine("Junk To "..(core.at_merchant and "Sell" or "Drop"))
+	core.add_junk_to_tooltip(self, core.at_merchant and core.sell_slots or core.drop_slots)
+	self:AddLine("|cffeda55fShift-Click|r to ".. (core.at_merchant and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 	self:AddLine("|cffeda55fControl-Right-Click|r to add the current cheapest item to the ignore list.", 0.2, 1, 0.2, 1)
 end
 
@@ -23,7 +23,7 @@ function dataobject:OnClick(button)
 		if IsControlKeyDown() then
 			-- add topmost item to the ignore list
 			-- TODO: Update the config screen
-			local slots = MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots
+			local slots = core.at_merchant and core.sell_slots or core.drop_slots
 			if #slots == 0 then return end
 			local id = core.link_to_id(core.slot_contents[table.remove(slots, 1)])
 			if not id then return end -- this really shouldn't happen... but just in case
@@ -36,10 +36,10 @@ function dataobject:OnClick(button)
 				config:ShowConfig()
 			end
 		end
-	else
-		local slots = MerchantFrame:IsVisible() and core.sell_slots or core.drop_slots
+	elseif IsShiftKeyDown() then
+		local slots = core.at_merchant and core.sell_slots or core.drop_slots
 		if #slots == 0 then return end
-		if not IsShiftKeyDown() then return end
+		-- table.remove so that multiple clicks immediately progress through the stack
 		core.drop_bagslot(table.remove(slots, 1))
 	end
 end
