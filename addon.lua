@@ -499,6 +499,26 @@ function decode_bagslot(int) return math.floor(int/100), int % 100 end
 core.encode_bagslot = encode_bagslot
 core.decode_bagslot = decode_bagslot
 
+local request_refresh
+do
+	local f
+	function request_refresh()
+		if not f then
+			f = CreateFrame("Frame")
+			f:SetScript("OnUpdate", function(self, elapsed)
+				self.elapsed = (self.elapsed or 0) + elapsed
+				if self.elapsed > 0.1 then
+					core:BAG_UPDATE_DELAYED()
+					self.elapsed = 0
+					self:Hide()
+				end
+			end)
+			f:Hide()
+		end
+		f:Show()
+	end
+end
+
 function drop_bagslot(bagslot, sell_only)
 	Debug("drop_bagslot", bagslot, sell_only and 'sell_only' or '')
 	Debug("At merchant?", core.at_merchant and 'yes' or 'no')
@@ -510,9 +530,11 @@ function drop_bagslot(bagslot, sell_only)
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
 	end
 	if not (bagslot and slot_contents[bagslot]) then
+		request_refresh()
 		return DEFAULT_CHAT_FRAME:AddMessage(myname .. " Error: Nothing found in requested slot. Aborting.", 1, 0, 0)
 	end
 	if not verify_slot_contents(bagslot) then
+		request_refresh()
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
