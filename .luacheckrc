@@ -17,6 +17,8 @@ globals = {
     "SLASH_DROPTHECHEAPESTTHING1",
     "SLASH_DROPTHECHEAPESTTHING2",
 
+    "DropTheCheapestThing",
+
     "SlashCmdList",
     "StaticPopupDialogs",
     "UpdateContainerFrameAnchors",

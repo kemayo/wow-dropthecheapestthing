@@ -3,6 +3,7 @@ local myname, ns = ...
 ns.CLASSIC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
 
 local core = LibStub("AceAddon-3.0"):NewAddon(myname, "AceEvent-3.0", "AceBucket-3.0")
+_G.DropTheCheapestThing = core
 
 local debugf = tekDebug and tekDebug:GetFrame(myname)
 local function Debug(...) if debugf then debugf:AddMessage(string.join(", ", tostringall(...))) end end
@@ -10,7 +11,7 @@ core.Debug = Debug
 
 local db, iterate_bags, slot_sorter, copper_to_pretty_money, encode_bagslot,
 	decode_bagslot, pretty_bagslot_name, drop_bagslot, add_junk_to_tooltip,
-	link_to_id, item_value, GetConsideredItemInfo, verify_slot_contents,
+	link_to_id, item_value, item_value_bagslot, GetConsideredItemInfo, verify_slot_contents,
 	GetAppearanceAndSource, CanLearnAppearance, HasAppearance, CanTransmogItem
 
 -- compat:
@@ -139,6 +140,11 @@ function item_value(link, force_vendor)
 	return vendor, 'vendor', vendor > 0
 end
 core.item_value = item_value
+
+function item_value_bagslot(bagslot, force_vendor)
+	return item_value(slot_contents[bagslot], force_vendor)
+end
+core.item_value_bagslot = item_value_bagslot
 
 local player_level
 function core:BAG_UPDATE_DELAYED()
@@ -519,8 +525,12 @@ do
 	end
 end
 
-function drop_bagslot(bagslot, sell_only)
-	Debug("drop_bagslot", bagslot, sell_only and 'sell_only' or '')
+-- request disposing of a specific slot
+-- sell_only means that the item won't be dropped, and requires that the player be at a merchant
+-- drop_only means that the item won't be sold
+-- if drop_only is false, items will be sold if the merchant frame is open
+function drop_bagslot(bagslot, sell_only, drop_only)
+	Debug("drop_bagslot", bagslot, sell_only and 'sell_only' or '', drop_only and 'drop_only' or '')
 	Debug("At merchant?", core.at_merchant and 'yes' or 'no')
 	local bag, slot = decode_bagslot(bagslot)
 	if CursorHasItem() then
@@ -528,6 +538,10 @@ function drop_bagslot(bagslot, sell_only)
 	end
 	if sell_only and not core.at_merchant then
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Can't sell items while not at a merchant. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot)), 1, 0, 0)
+	end
+	if sell_only and not select(3, item_value_bagslot(bagslot, true)) then
+		request_refresh()
+		return DEFAULT_CHAT_FRAME:AddMessage(myname .. " Error: Can't sell items without a price. Aborting.", 1, 0, 0)
 	end
 	if not (bagslot and slot_contents[bagslot]) then
 		request_refresh()
@@ -538,15 +552,17 @@ function drop_bagslot(bagslot, sell_only)
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
-	if core.at_merchant then
+	if core.at_merchant and not drop_only then
 		-- value might be the auction value, so force-check it
-		local value = slot_counts[bagslot] * item_value(slot_contents[bagslot], true)
+		local value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
 		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(value))
 		UseContainerItem(bag, slot)
-	else
+	elseif not sell_only then
 		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[bagslot]))
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
+	else
+		return DEFAULT_CHAT_FRAME:AddMessage(myname .. " Error: Couldn't drop-or-sell an item. Aborting.", 1, 0, 0)
 	end
 	return slot_values[bagslot] or 0
 end

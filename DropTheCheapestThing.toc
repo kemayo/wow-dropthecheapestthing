@@ -36,5 +36,7 @@ config.lua
 ldb.lua
 button.lua
 
+api.lua
+
 integration.lua
 compatibility.lua
