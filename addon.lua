@@ -304,6 +304,11 @@ function GetConsideredItemInfo(bag, slot)
 		end
 	end
 
+	local info = C_Container.GetContainerItemInfo(bag, slot)
+	if info then
+		sellable = sellable and not info.hasNoValue
+	end
+
 	local _, count = GetContainerItemInfo(bag, slot)
 	return itemid, link, count, stacksize, quality, value, source, action, sellable
 end
