@@ -470,11 +470,13 @@ core.pretty_bagslot_name = pretty_bagslot_name
 
 function copper_to_pretty_money(c)
 	if c >= 10000 then
-		return ("|cffffffff%d|r|cffffd700g|r|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format(c/10000, (c/100)%100, c%100)
+		return ("|cffffffff%s|r|cffffd700%s|r |cffffffff%d|r|cffc7c7cf%s|r |cffffffff%d|r|cffeda55f%s|r"):format(
+			BreakUpLargeNumbers(math.floor(c/10000)), GOLD_AMOUNT_SYMBOL, math.floor(c/100)%100, SILVER_AMOUNT_SYMBOL, c%100, COPPER_AMOUNT_SYMBOL
+		)
 	elseif c >= 100 then
-		return ("|cffffffff%d|r|cffc7c7cfs|r|cffffffff%d|r|cffeda55fc|r"):format((c/100)%100, c%100)
+		return ("|cffffffff%d|r|cffc7c7cf%s|r |cffffffff%d|r|cffeda55f%s|r"):format(math.floor(c/100)%100, SILVER_AMOUNT_SYMBOL, c%100, COPPER_AMOUNT_SYMBOL)
 	else
-		return ("|cffffffff%d|r|cffeda55fc|r"):format(c%100)
+		return ("|cffffffff%d|r|cffeda55f%s|r"):format(c%100, COPPER_AMOUNT_SYMBOL)
 	end
 end
 core.copper_to_pretty_money = copper_to_pretty_money

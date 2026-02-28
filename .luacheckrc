@@ -47,6 +47,7 @@ read_globals = {
     "C_Container",
     "C_Transmog",
     "C_TransmogCollection",
+    "BreakUpLargeNumbers",
     "BankButtonIDToInvSlotID",
     "ContainerIDToInventoryID",
     "ReagentBankButtonIDToInvSlotID",
@@ -166,4 +167,7 @@ read_globals = {
     "WOW_PROJECT_ID",
     "WOW_PROJECT_MAINLINE",
     "WOW_PROJECT_CLASSIC",
+    "GOLD_AMOUNT_SYMBOL",
+    "SILVER_AMOUNT_SYMBOL",
+    "COPPER_AMOUNT_SYMBOL",
 }
