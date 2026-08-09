@@ -63,7 +63,7 @@ local slot_soulbound = setmetatable({}, {__index = function(self, bagslot)
 end,})
 local item_quest = setmetatable({}, {__index = function(self, itemid)
 	local bindType = select(14, C_Item.GetItemInfo(itemid))
-	local is_quest = bindType == LE_ITEM_BIND_QUEST
+	local is_quest = bindType == Enum.ItemBind.Quest
 	if bindType ~= nil then -- just in case
 		self[itemid] = is_quest
 	end

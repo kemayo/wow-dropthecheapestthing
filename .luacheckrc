@@ -53,6 +53,7 @@ read_globals = {
     "ReagentBankButtonIDToInvSlotID",
     "CursorHasItem",
     "DeleteCursorItem",
+    "Enum",
     "GetAuctionItemSubClasses",
     "GetBuildInfo",
     "GetBackpackAutosortDisabled",
