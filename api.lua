@@ -11,7 +11,7 @@ local function drop(slots, count, sell_if_available)
 	for _, bagslot in ipairs(slots) do
 		-- if we've asked to sell if we can, and we're at a merchant, and the item is sellable:
 		local sell_only = sell_if_available and core.at_merchant and select(3, core.item_value_bagslot(bagslot, true))
-		local value = core.drop_bagslot(bagslot, sell_only, not sell_if_available)
+		local value = core.drop_bagslot(bagslot, sell_only, not sell_only)
 		if not value then
 			-- The drop/sell failed validation, so we can't continue from here
 			failed = true
