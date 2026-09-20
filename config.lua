@@ -191,7 +191,9 @@ local list_names = { always_consider = "Always Consider", never_consider = "Neve
 BINDING_HEADER_DROPTHECHEAPESTTHING = myname
 BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS = list_names.always_consider..": toggle hovered item"
 BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_NEVER = list_names.never_consider..": toggle hovered item"
-
+BINDING_NAME_DROPTHECHEAPESTTHING_DROP = "Drop the cheapest item"
+BINDING_NAME_DROPTHECHEAPESTTHING_SELL = "Sell the cheapest item"
+BINDING_NAME_DROPTHECHEAPESTTHING_SELL_OR_DROP = "Sell or drop the cheapest item"
 
 -- Bindings.xml calls this:
 function core.ToggleConfigListItemFromMouse(key)
