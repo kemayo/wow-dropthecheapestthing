@@ -186,6 +186,27 @@ function module:ShowConfig()
 	Settings.OpenToCategory(self.categoryID)
 end
 
+BINDING_HEADER_DROPTHECHEAPESTTHING = myname
+BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS = "Toggle the item under the mouse"
+
+-- Bindings.xml calls this. It is here rather than inline in the XML because
+-- this file already holds db and already owns the two lists.
+function core.ToggleAlwaysConsider()
+	if not GameTooltip:IsVisible() then return end
+	local _, link = GameTooltip:GetItem()
+	local itemid = link and core.link_to_id(link)
+	if not itemid then return end
+	if db.profile.always_consider[itemid] then
+		db.profile.always_consider[itemid] = nil
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": removed " .. link .. " from Always Consider")
+	else
+		db.profile.always_consider[itemid] = true
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": added " .. link .. " to Always Consider")
+	end
+	LibStub("AceConfigRegistry-3.0"):NotifyChange(myname)
+	core:BAG_UPDATE_DELAYED()
+end
+
 SLASH_DROPTHECHEAPESTTHING1 = "/dropcheap"
 SLASH_DROPTHECHEAPESTTHING2 = "/dtct"
 function SlashCmdList.DROPTHECHEAPESTTHING()
