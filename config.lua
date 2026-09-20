@@ -186,23 +186,27 @@ function module:ShowConfig()
 	Settings.OpenToCategory(self.categoryID)
 end
 
-BINDING_HEADER_DROPTHECHEAPESTTHING = myname
-BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS = "Toggle the item under the mouse"
+local list_names = { always_consider = "Always Consider", never_consider = "Never Consider" }
 
--- Bindings.xml calls this. It is here rather than inline in the XML because
--- this file already holds db and already owns the two lists.
-function core.ToggleAlwaysConsider()
+BINDING_HEADER_DROPTHECHEAPESTTHING = myname
+BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS = list_names.always_consider..": toggle hovered item"
+BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_NEVER = list_names.never_consider..": toggle hovered item"
+
+
+-- Bindings.xml calls this:
+function core.ToggleConfigListItemFromMouse(key)
 	if not GameTooltip:IsVisible() then return end
 	local _, link = GameTooltip:GetItem()
 	local itemid = link and core.link_to_id(link)
 	if not itemid then return end
-	if db.profile.always_consider[itemid] then
-		db.profile.always_consider[itemid] = nil
-		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": removed " .. link .. " from Always Consider")
+	if db.profile[key][itemid] then
+		db.profile[key][itemid] = nil
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": removed " .. link .. " from " .. list_names[key])
 	else
-		db.profile.always_consider[itemid] = true
-		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": added " .. link .. " to Always Consider")
+		db.profile[key][itemid] = true
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": added " .. link .. " to " .. list_names[key])
 	end
+	-- If the config window is visible this will rebuild it and remove the item from the lists:
 	LibStub("AceConfigRegistry-3.0"):NotifyChange(myname)
 	core:BAG_UPDATE_DELAYED()
 end
