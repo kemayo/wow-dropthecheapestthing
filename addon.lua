@@ -198,6 +198,18 @@ core.GET_ITEM_INFO_RECEIVED = core.BAG_UPDATE_DELAYED
 local never_consider = {
 	[40110] = true, -- Haunted Memento
 	[183616] = true, -- Accursed Keepsake
+	-- The nine greys a Shadowlands vendor takes in exchange for the three
+	-- Baubleworm pets. They look exactly like junk, and selling one costs you
+	-- the pet.
+	[36812] = true, -- Ground Gear (Ruby Baubleworm)
+	[62072] = true, -- Robble's Wobbly Staff (Ruby Baubleworm)
+	[67410] = true, -- Very Unlucky Rock (Ruby Baubleworm)
+	[11406] = true, -- Rotting Bear Carcass (Topaz Baubleworm)
+	[11944] = true, -- Dark Iron Baby Booties (Topaz Baubleworm)
+	[25402] = true, -- The Stoppable Force (Topaz Baubleworm)
+	[3300] = true, -- Rabbit's Foot (Turquoise Baubleworm)
+	[3670] = true, -- Large Slimy Bone (Turquoise Baubleworm)
+	[6150] = true, -- A Frayed Knot (Turquoise Baubleworm)
 }
 local filters = {
 	-- Never consider
