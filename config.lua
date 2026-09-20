@@ -188,6 +188,15 @@ end
 
 SLASH_DROPTHECHEAPESTTHING1 = "/dropcheap"
 SLASH_DROPTHECHEAPESTTHING2 = "/dtct"
-function SlashCmdList.DROPTHECHEAPESTTHING()
-	module:ShowConfig()
+function SlashCmdList.DROPTHECHEAPESTTHING(input)
+	local command = strtrim(input or ""):lower()
+	if command == "drop" then
+		core.API.Drop()
+	elseif command == "sell" then
+		core.API.Sell()
+	elseif command == "sell all" then
+		core.API.Sell(true, true)
+	else
+		module:ShowConfig()
+	end
 end
