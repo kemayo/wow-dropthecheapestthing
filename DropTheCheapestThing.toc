@@ -31,6 +31,8 @@
 embeds.xml
 #@end-no-lib-strip@
 
+Bindings.xml
+
 addon.lua
 config.lua
 ldb.lua
