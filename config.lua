@@ -75,6 +75,9 @@ end
 function module:OnInitialize()
 	db = core.db
 
+	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(db)
+	profiles.order = 40
+
 	local options = function() return {
 		type = "group",
 		name = "DropTheCheapestThing",
@@ -178,6 +181,7 @@ function module:OnInitialize()
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
 			never = item_list_group("Never Consider", 30, "Items listed here will *never* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen.", db.profile.never_consider),
+			profiles = profiles,
 		},
 		plugins = self.plugins,
 	} end
@@ -186,6 +190,17 @@ function module:OnInitialize()
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(myname, options)
 	self.categoryID = select(2, LibStub("AceConfigDialog-3.0"):AddToBlizOptions(myname, myname))
+
+	db.RegisterCallback(self, "OnProfileChanged", "RefreshProfile")
+	db.RegisterCallback(self, "OnProfileCopied", "RefreshProfile")
+	db.RegisterCallback(self, "OnProfileReset", "RefreshProfile")
+end
+
+function module:RefreshProfile()
+	-- the item lists in the options are read out of the profile, and what
+	-- counts as junk has just changed under us
+	LibStub("AceConfigRegistry-3.0"):NotifyChange(myname)
+	core:BAG_UPDATE_DELAYED()
 end
 
 function module:ShowConfig()
