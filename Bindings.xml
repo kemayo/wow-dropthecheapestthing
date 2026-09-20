@@ -1,5 +1,5 @@
 <Bindings>
-	<Binding name="DROPTHECHEAPESTTHING_TOGGLE_ALWAYS" header="DROPTHECHEAPESTTHING" category="ADDONS">
+	<Binding name="DROPTHECHEAPESTTHING_TOGGLE_ALWAYS" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
 		DropTheCheapestThing.ToggleAlwaysConsider()
 	</Binding>
 </Bindings>
