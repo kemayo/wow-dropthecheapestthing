@@ -571,18 +571,20 @@ function drop_bagslot(bagslot, sell_only, drop_only)
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
+	local value
 	if core.at_merchant and not drop_only then
 		-- value might be the auction value, so force-check it
-		local value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
+		value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
 		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(value))
 		UseContainerItem(bag, slot)
 	elseif not sell_only then
-		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[bagslot]))
+		value = slot_values[bagslot]
+		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(value))
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
 	else
 		return DEFAULT_CHAT_FRAME:AddMessage(myname .. " Error: Couldn't drop-or-sell an item. Aborting.", 1, 0, 0)
 	end
-	return slot_values[bagslot] or 0
+	return value or 0
 end
 core.drop_bagslot = drop_bagslot
