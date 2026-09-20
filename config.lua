@@ -112,6 +112,15 @@ function module:OnInitialize()
 						name = "Use full stack value",
 						order = 30,
 					},
+					mark_in_bags = {
+						type = "toggle",
+						name = "Mark junk in your bags",
+						desc = "Show the junk icon on these items in Bagnon and Baganator.",
+						disabled = function()
+							return not (C_AddOns.IsAddOnLoaded("Bagnon") or C_AddOns.IsAddOnLoaded("Baganator"))
+						end,
+						order = 60,
+					},
 				},
 				plugins = {},
 			},
@@ -167,15 +176,6 @@ function module:OnInitialize()
 						desc = "Consider items whose appearances you don't yet know",
 						disabled = function() return not _G.C_TransmogCollection end,
 						order = 50,
-					},
-					mark_in_bags = {
-						type = "toggle",
-						name = "Mark junk in your bags",
-						desc = "Show the junk icon on these items in Bagnon and Baganator. Turning this off leaves the rest of the addon alone.",
-						disabled = function()
-							return not (C_AddOns.IsAddOnLoaded("Bagnon") or C_AddOns.IsAddOnLoaded("Baganator"))
-						end,
-						order = 60,
 					},
 				}
 			},
