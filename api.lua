@@ -33,7 +33,7 @@ end
 -- `sell_if_available` is a boolean saying whether to sell the item instead if you're at a merchant
 -- Returns number of things dropped, total value of items dropped, and a boolean saying whether the attempt failed
 DropTheCheapestThing.API.Drop = function(sell_if_available)
-	return drop(core.drop_slots, 1, false, not sell_if_available)
+	return drop(core.drop_slots, 1, sell_if_available)
 end
 
 -- Drops an item
