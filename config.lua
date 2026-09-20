@@ -115,10 +115,7 @@ function module:OnInitialize()
 					mark_in_bags = {
 						type = "toggle",
 						name = "Mark junk in your bags",
-						desc = "Show the junk icon on these items in Bagnon and Baganator.",
-						disabled = function()
-							return not (C_AddOns.IsAddOnLoaded("Bagnon") or C_AddOns.IsAddOnLoaded("Baganator"))
-						end,
+						desc = "Show the junk icon on these items in the default bags, Bagnon, and Baganator.",
 						order = 60,
 					},
 				},

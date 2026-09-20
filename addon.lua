@@ -94,7 +94,7 @@ function core:OnInitialize()
 			valueless = false,
 			soulbound = false,
 			appearance = false, -- consider unknown appearances?
-			mark_in_bags = true, -- show junk in Bagnon/Baganator?
+			mark_in_bags = true, -- show junk in bags?
 			low = {
 				food = false,
 				scroll = false,

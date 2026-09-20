@@ -118,6 +118,9 @@ read_globals = {
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
     "EventRegistry",
+    "hooksecurefunc",
+    "ContainerFrameContainer",
+    "ContainerFrame_Update",
     "Settings",
 
     -- FrameXML Constants
