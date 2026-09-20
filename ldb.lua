@@ -4,6 +4,16 @@ local icon = LibStub("LibDBIcon-1.0", true)
 
 local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_Bag_22.blp"
 
+local modifiers = {
+	CONTROL = {name = "Control", down = IsControlKeyDown},
+	ALT = {name = "Alt", down = IsAltKeyDown},
+	SHIFT = {name = "Shift", down = IsShiftKeyDown},
+}
+local function ignore_modifier()
+	-- the tooltip can be asked for before OnInitialize has run
+	return modifiers[module.db and module.db.profile.ignore_modifier] or modifiers.CONTROL
+end
+
 local dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestThing", {
 	type = "data source",
 	icon = DEFAULT_ICON,
@@ -15,12 +25,12 @@ function dataobject:OnTooltipShow()
 	self:AddLine("Junk To "..(core.at_merchant and "Sell" or "Drop"))
 	core.add_junk_to_tooltip(self, core.at_merchant and core.sell_slots or core.drop_slots)
 	self:AddLine("|cffeda55fShift-Click|r to ".. (core.at_merchant and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
-	self:AddLine("|cffeda55fControl-Right-Click|r to add the current cheapest item to the ignore list.", 0.2, 1, 0.2, 1)
+	self:AddLine(("|cffeda55f%s-Right-Click|r to add the current cheapest item to the ignore list."):format(ignore_modifier().name), 0.2, 1, 0.2, 1)
 end
 
 function dataobject:OnClick(button)
 	if button == "RightButton" then
-		if IsControlKeyDown() then
+		if ignore_modifier().down() then
 			-- add topmost item to the ignore list
 			-- TODO: Update the config screen
 			local slots = core.at_merchant and core.sell_slots or core.drop_slots
@@ -69,6 +79,7 @@ function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("LDB", {
 		profile = {
 			minimap = {showInCompartment=true},
+			ignore_modifier = "CONTROL",
 			text = {
 				item = false,
 				itemcount = false,
@@ -109,6 +120,14 @@ function module:OnInitialize()
 						end,
 						width = "full",
 						hidden = function() return not icon or not dataobject or not icon:IsRegistered("DropTheCheapestThing") end,
+					},
+					ignore_modifier = {
+						type = "select",
+						name = "Ignore list modifier",
+						desc = "Which key to hold while right-clicking to add the cheapest item to the ignore list. Change it if something else on your minimap button already uses control-right-click.",
+						values = {CONTROL = "Control", ALT = "Alt", SHIFT = "Shift"},
+						get = function() return self.db.profile.ignore_modifier end,
+						set = function(info, v) self.db.profile.ignore_modifier = v end,
 					},
 					text = {
 						type = "multiselect",
