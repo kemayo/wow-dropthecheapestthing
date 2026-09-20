@@ -65,6 +65,12 @@ core.RegisterCallback("LDB", "Junk_Update", function(callback, drop_count, sell_
 	dataobject.icon = select(10, C_Item.GetItemInfo(core.slot_contents[core.drop_slots[1]]))
 end)
 
+function module:RefreshProfile()
+	if icon and icon:IsRegistered("DropTheCheapestThing") then
+		icon:Refresh("DropTheCheapestThing", self.db.profile.minimap)
+	end
+end
+
 function module:OnInitialize()
 	self.db = core.db:RegisterNamespace("LDB", {
 		profile = {
@@ -85,6 +91,10 @@ function module:OnInitialize()
 	if icon then
 		icon:Register("DropTheCheapestThing", dataobject, self.db.profile.minimap)
 	end
+	-- LibDBIcon holds on to that table, so hand it the new one on a switch
+	core.db.RegisterCallback(self, "OnProfileChanged", "RefreshProfile")
+	core.db.RegisterCallback(self, "OnProfileCopied", "RefreshProfile")
+	core.db.RegisterCallback(self, "OnProfileReset", "RefreshProfile")
 
 	local config = core:GetModule("Config", true)
 	if config then
