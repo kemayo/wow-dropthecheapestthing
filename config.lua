@@ -168,6 +168,15 @@ function module:OnInitialize()
 						disabled = function() return not _G.C_TransmogCollection end,
 						order = 50,
 					},
+					mark_in_bags = {
+						type = "toggle",
+						name = "Mark junk in your bags",
+						desc = "Show the junk icon on these items in Bagnon and Baganator. Turning this off leaves the rest of the addon alone.",
+						disabled = function()
+							return not (C_AddOns.IsAddOnLoaded("Bagnon") or C_AddOns.IsAddOnLoaded("Baganator"))
+						end,
+						order = 60,
+					},
 				}
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),

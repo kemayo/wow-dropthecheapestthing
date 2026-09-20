@@ -26,6 +26,7 @@ f:RegisterEvent("ADDON_LOADED")
 f:RegisterAddonHook("Baganator", function()
 	-- label, id, callback(bagID, slotID, itemID, itemLink)->nil/true/false
 	Baganator.API.RegisterJunkPlugin(myname, myname, function(bagID, slotID, itemID, itemLink)
+		if not core.db.profile.mark_in_bags then return false end
 		local bagslot = core.encode_bagslot(bagID, slotID)
 		return core.slot_contents[bagslot] and true or false
 	end)
@@ -53,7 +54,7 @@ f:RegisterAddonHook("Bagnon", function()
 				return
 			end
 			local bagslot = core.encode_bagslot(bag, slot)
-			if core.slot_contents[bagslot] then
+			if core.slot_contents[bagslot] and core.db.profile.mark_in_bags then
 				self.IconGlow:SetVertexColor(r, g, b, 0.5)
 				self.IconGlow:SetShown(r)
 				self.JunkIcon:Show()
