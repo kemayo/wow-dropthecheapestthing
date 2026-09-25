@@ -95,6 +95,7 @@ function core:OnInitialize()
 			soulbound = false,
 			appearance = false, -- consider unknown appearances?
 			appearance_threshold = 0, -- ...and below this quality, consider them anyway
+			mark_in_bags = true, -- show junk in bags?
 			low = {
 				food = false,
 				scroll = false,
@@ -199,6 +200,18 @@ core.GET_ITEM_INFO_RECEIVED = core.BAG_UPDATE_DELAYED
 local never_consider = {
 	[40110] = true, -- Haunted Memento
 	[183616] = true, -- Accursed Keepsake
+	-- The nine greys a Shadowlands vendor takes in exchange for the three
+	-- Baubleworm pets. They look exactly like junk, and selling one costs you
+	-- the pet.
+	[36812] = true, -- Ground Gear (Ruby Baubleworm)
+	[62072] = true, -- Robble's Wobbly Staff (Ruby Baubleworm)
+	[67410] = true, -- Very Unlucky Rock (Ruby Baubleworm)
+	[11406] = true, -- Rotting Bear Carcass (Topaz Baubleworm)
+	[11944] = true, -- Dark Iron Baby Booties (Topaz Baubleworm)
+	[25402] = true, -- The Stoppable Force (Topaz Baubleworm)
+	[3300] = true, -- Rabbit's Foot (Turquoise Baubleworm)
+	[3670] = true, -- Large Slimy Bone (Turquoise Baubleworm)
+	[6150] = true, -- A Frayed Knot (Turquoise Baubleworm)
 }
 local filters = {
 	-- Never consider
@@ -565,18 +578,20 @@ function drop_bagslot(bagslot, sell_only, drop_only)
 		return DEFAULT_CHAT_FRAME:AddMessage((myname .. " Error: Expected %s in bag slot, found %s instead. Aborting."):format(slot_contents[bagslot], GetContainerItemLink(bag, slot) or "nothing"), 1, 0, 0)
 	end
 
+	local value
 	if core.at_merchant and not drop_only then
 		-- value might be the auction value, so force-check it
-		local value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
+		value = slot_counts[bagslot] * item_value_bagslot(bagslot, true)
 		DEFAULT_CHAT_FRAME:AddMessage("Selling "..pretty_bagslot_name(bagslot).." for "..copper_to_pretty_money(value))
 		UseContainerItem(bag, slot)
 	elseif not sell_only then
-		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(slot_values[bagslot]))
+		value = slot_values[bagslot]
+		DEFAULT_CHAT_FRAME:AddMessage("Dropping "..pretty_bagslot_name(bagslot).." worth "..copper_to_pretty_money(value))
 		PickupContainerItem(bag, slot)
 		DeleteCursorItem()
 	else
 		return DEFAULT_CHAT_FRAME:AddMessage(myname .. " Error: Couldn't drop-or-sell an item. Aborting.", 1, 0, 0)
 	end
-	return slot_values[bagslot] or 0
+	return value or 0
 end
 core.drop_bagslot = drop_bagslot

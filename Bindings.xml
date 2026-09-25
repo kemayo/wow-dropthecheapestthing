@@ -1,0 +1,17 @@
+<Bindings>
+	<Binding name="DROPTHECHEAPESTTHING_DROP" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
+		DropTheCheapestThing.API.Drop()
+	</Binding>
+	<Binding name="DROPTHECHEAPESTTHING_SELL" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
+		DropTheCheapestThing.API.Sell()
+	</Binding>
+	<Binding name="DROPTHECHEAPESTTHING_SELL_OR_DROP" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
+		DropTheCheapestThing.API.Drop(true)
+	</Binding>
+	<Binding name="DROPTHECHEAPESTTHING_TOGGLE_ALWAYS" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
+		DropTheCheapestThing.ToggleConfigListItemFromMouse("always_consider")
+	</Binding>
+	<Binding name="DROPTHECHEAPESTTHING_TOGGLE_NEVER" category="BINDING_HEADER_DROPTHECHEAPESTTHING">
+		DropTheCheapestThing.ToggleConfigListItemFromMouse("never_consider")
+	</Binding>
+</Bindings>

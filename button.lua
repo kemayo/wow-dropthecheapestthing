@@ -13,6 +13,9 @@ function module:OnInitialize()
 		},
 	})
 	db = self.db.profile
+	core.db.RegisterCallback(self, "OnProfileChanged", "RefreshProfile")
+	core.db.RegisterCallback(self, "OnProfileCopied", "RefreshProfile")
+	core.db.RegisterCallback(self, "OnProfileReset", "RefreshProfile")
 
 	local config = core:GetModule("Config", true)
 	if config then
@@ -122,6 +125,13 @@ local function update_button()
 	else
 		button:Hide()
 	end
+end
+
+-- db above is this namespace's profile table, and a profile switch replaces
+-- it -- without this, the button would keep reading the old profile.
+function module:RefreshProfile()
+	db = self.db.profile
+	update_button()
 end
 
 core.RegisterCallback("Button", "Junk_Update", update_button)

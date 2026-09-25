@@ -17,6 +17,13 @@ globals = {
     "SLASH_DROPTHECHEAPESTTHING1",
     "SLASH_DROPTHECHEAPESTTHING2",
 
+    "BINDING_HEADER_DROPTHECHEAPESTTHING",
+    "BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS",
+    "BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_NEVER",
+    "BINDING_NAME_DROPTHECHEAPESTTHING_DROP",
+    "BINDING_NAME_DROPTHECHEAPESTTHING_SELL",
+    "BINDING_NAME_DROPTHECHEAPESTTHING_SELL_OR_DROP",
+
     "DropTheCheapestThing",
 
     "SlashCmdList",
@@ -111,6 +118,9 @@ read_globals = {
     "ScrollingEdit_OnCursorChanged",
     "ScrollingEdit_OnUpdate",
     "EventRegistry",
+    "hooksecurefunc",
+    "ContainerFrameContainer",
+    "ContainerFrame_Update",
     "Settings",
 
     -- FrameXML Constants

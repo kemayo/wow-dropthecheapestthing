@@ -11,7 +11,7 @@ local function drop(slots, count, sell_if_available)
 	for _, bagslot in ipairs(slots) do
 		-- if we've asked to sell if we can, and we're at a merchant, and the item is sellable:
 		local sell_only = sell_if_available and core.at_merchant and select(3, core.item_value_bagslot(bagslot, true))
-		local value = core.drop_bagslot(bagslot, sell_only, not sell_if_available)
+		local value = core.drop_bagslot(bagslot, sell_only, not sell_only)
 		if not value then
 			-- The drop/sell failed validation, so we can't continue from here
 			failed = true
@@ -33,7 +33,7 @@ end
 -- `sell_if_available` is a boolean saying whether to sell the item instead if you're at a merchant
 -- Returns number of things dropped, total value of items dropped, and a boolean saying whether the attempt failed
 DropTheCheapestThing.API.Drop = function(sell_if_available)
-	return drop(core.drop_slots, 1, false, not sell_if_available)
+	return drop(core.drop_slots, 1, sell_if_available)
 end
 
 -- Drops an item

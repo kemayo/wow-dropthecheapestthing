@@ -75,6 +75,9 @@ end
 function module:OnInitialize()
 	db = core.db
 
+	local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(db)
+	profiles.order = 40
+
 	local options = function() return {
 		type = "group",
 		name = "DropTheCheapestThing",
@@ -111,6 +114,12 @@ function module:OnInitialize()
 						type = "toggle",
 						name = "Use full stack value",
 						order = 30,
+					},
+					mark_in_bags = {
+						type = "toggle",
+						name = "Mark junk in your bags",
+						desc = "Show the junk icon on these items in the default bags, Bagnon, and Baganator.",
+						order = 60,
 					},
 				},
 				plugins = {},
@@ -182,6 +191,7 @@ function module:OnInitialize()
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
 			never = item_list_group("Never Consider", 30, "Items listed here will *never* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen.", db.profile.never_consider),
+			profiles = profiles,
 		},
 		plugins = self.plugins,
 	} end
@@ -190,14 +200,61 @@ function module:OnInitialize()
 
 	LibStub("AceConfigRegistry-3.0"):RegisterOptionsTable(myname, options)
 	self.categoryID = select(2, LibStub("AceConfigDialog-3.0"):AddToBlizOptions(myname, myname))
+
+	db.RegisterCallback(self, "OnProfileChanged", "RefreshProfile")
+	db.RegisterCallback(self, "OnProfileCopied", "RefreshProfile")
+	db.RegisterCallback(self, "OnProfileReset", "RefreshProfile")
+end
+
+function module:RefreshProfile()
+	-- the item lists in the options are read out of the profile, and what
+	-- counts as junk has just changed under us
+	LibStub("AceConfigRegistry-3.0"):NotifyChange(myname)
+	core:BAG_UPDATE_DELAYED()
 end
 
 function module:ShowConfig()
 	Settings.OpenToCategory(self.categoryID)
 end
 
+local list_names = { always_consider = "Always Consider", never_consider = "Never Consider" }
+
+BINDING_HEADER_DROPTHECHEAPESTTHING = myname
+BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_ALWAYS = list_names.always_consider..": toggle hovered item"
+BINDING_NAME_DROPTHECHEAPESTTHING_TOGGLE_NEVER = list_names.never_consider..": toggle hovered item"
+BINDING_NAME_DROPTHECHEAPESTTHING_DROP = "Drop the cheapest item"
+BINDING_NAME_DROPTHECHEAPESTTHING_SELL = "Sell the cheapest item"
+BINDING_NAME_DROPTHECHEAPESTTHING_SELL_OR_DROP = "Sell or drop the cheapest item"
+
+-- Bindings.xml calls this:
+function core.ToggleConfigListItemFromMouse(key)
+	if not GameTooltip:IsVisible() then return end
+	local _, link = GameTooltip:GetItem()
+	local itemid = link and core.link_to_id(link)
+	if not itemid then return end
+	if db.profile[key][itemid] then
+		db.profile[key][itemid] = nil
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": removed " .. link .. " from " .. list_names[key])
+	else
+		db.profile[key][itemid] = true
+		DEFAULT_CHAT_FRAME:AddMessage(myname .. ": added " .. link .. " to " .. list_names[key])
+	end
+	-- If the config window is visible this will rebuild it and remove the item from the lists:
+	LibStub("AceConfigRegistry-3.0"):NotifyChange(myname)
+	core:BAG_UPDATE_DELAYED()
+end
+
 SLASH_DROPTHECHEAPESTTHING1 = "/dropcheap"
 SLASH_DROPTHECHEAPESTTHING2 = "/dtct"
-function SlashCmdList.DROPTHECHEAPESTTHING()
-	module:ShowConfig()
+function SlashCmdList.DROPTHECHEAPESTTHING(input)
+	local command = strtrim(input or ""):lower()
+	if command == "drop" then
+		core.API.Drop()
+	elseif command == "sell" then
+		core.API.Sell()
+	elseif command == "sell all" then
+		core.API.Sell(true, true)
+	else
+		module:ShowConfig()
+	end
 end
