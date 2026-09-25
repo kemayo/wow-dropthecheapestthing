@@ -94,6 +94,7 @@ function core:OnInitialize()
 			valueless = false,
 			soulbound = false,
 			appearance = false, -- consider unknown appearances?
+			appearance_threshold = 0, -- ...and below this quality, consider them anyway
 			mark_in_bags = true, -- show junk in bags?
 			low = {
 				food = false,
@@ -266,8 +267,13 @@ local filters = {
 		end
 	end,
 	-- Appearance known?
-	function(bag, slot)
+	function(bag, slot, itemid, quality)
 		if db.profile.appearance or not _G.C_TransmogCollection then
+			return
+		end
+		if quality < db.profile.appearance_threshold then
+			-- poor and common gear has been collectable since 10.0.5, which
+			-- quietly took every unknown grey out of the junk list
 			return
 		end
 		local link = GetContainerItemLink(bag, slot)

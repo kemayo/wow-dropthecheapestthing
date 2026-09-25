@@ -177,6 +177,16 @@ function module:OnInitialize()
 						disabled = function() return not _G.C_TransmogCollection end,
 						order = 50,
 					},
+					appearance_threshold = {
+						type = "range",
+						name = "Appearance threshold",
+						desc = "Only hold on to unknown appearances for items of at least this quality. Poor and common gear became collectable in 10.0.5, so raise this to 1 if you'd rather your greys were still junk.",
+						min = 0, max = 7, step = 1,
+						disabled = function()
+							return db.profile.appearance or not _G.C_TransmogCollection
+						end,
+						order = 55,
+					},
 				}
 			},
 			always = item_list_group("Always Consider", 20, "Items listed here will *always* be considered junk and sold/dropped, regardless of the quality threshold that has been chosen. Be careful with this -- you'll never be prompted about it, and it will have no qualms about dropping things that could be auctioned for 5000g.", db.profile.always_consider),
