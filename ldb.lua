@@ -12,7 +12,7 @@ local dataobject = LibStub("LibDataBroker-1.1"):NewDataObject("DropTheCheapestTh
 })
 
 function dataobject:OnTooltipShow()
-	self:AddLine("Junk To "..(core.at_merchant and "Sell" or "Drop"))
+	self:AddLine(core.at_merchant and "Junk To Sell" or (core.db.profile.consider_all and "Items To Drop" or "Junk To Drop"))
 	core.add_junk_to_tooltip(self, core.at_merchant and core.sell_slots or core.drop_slots)
 	self:AddLine("|cffeda55fShift-Click|r to ".. (core.at_merchant and "sell" or "delete") .." the cheapest item.", 0.2, 1, 0.2, 1)
 	self:AddLine("|cffeda55fControl-Right-Click|r to add the current cheapest item to the ignore list.", 0.2, 1, 0.2, 1)
