@@ -50,6 +50,7 @@ end
 local drop_slots = {}
 local sell_slots = {}
 local slot_contents = {}
+local slot_junk = {} -- Candidates eligible under the original junk/selling rules.
 local slot_counts = {}
 local slot_stacksizes = {}
 local slot_values = {}
@@ -73,6 +74,7 @@ end,})
 core.drop_slots = drop_slots
 core.sell_slots = sell_slots
 core.slot_contents = slot_contents
+core.slot_junk = slot_junk
 core.slot_counts = slot_counts
 core.slot_stacksizes = slot_stacksizes
 core.slot_values = slot_values
@@ -84,7 +86,8 @@ core.events = LibStub("CallbackHandler-1.0"):New(core)
 function core:OnInitialize()
 	db = LibStub("AceDB-3.0"):New("DropTheCheapestThingDB", {
 		profile = {
-			threshold = 0, -- items above this quality won't even be considered
+			consider_all = false, -- Opt in to reviewing all drop candidates.
+			threshold = 0, -- used for dropping when consider_all is disabled
 			sell_threshold = 0,
 			always_consider = {},
 			never_consider = {},
@@ -152,6 +155,7 @@ function core:BAG_UPDATE_DELAYED()
 	table.wipe(drop_slots)
 	table.wipe(sell_slots)
 	table.wipe(slot_contents)
+	table.wipe(slot_junk)
 	table.wipe(slot_counts)
 	table.wipe(slot_stacksizes)
 	table.wipe(slot_values)
@@ -164,20 +168,21 @@ function core:BAG_UPDATE_DELAYED()
 
 	for bag = 0, NUM_BAG_SLOTS + NUM_REAGENTBAG_SLOTS do
 		for slot = 1, GetContainerNumSlots(bag) do
-			local itemid, link, count, stacksize, quality, value, source, forced, sellable = GetConsideredItemInfo(bag, slot)
+			local itemid, link, count, stacksize, quality, value, source, forced, sellable, junk = GetConsideredItemInfo(bag, slot)
 			if itemid then
 				local bagslot = encode_bagslot(bag, slot)
 				slot_contents[bagslot] = link
+				if junk then slot_junk[bagslot] = true end
 				slot_counts[bagslot] = count
 				slot_stacksizes[bagslot] = stacksize
 				slot_values[bagslot] = value * count
 				slot_weightedvalues[bagslot] = db.profile.full_stacks and (value * stacksize) or (value * count)
 				slot_valuesources[bagslot] = source
-				if forced or quality <= db.profile.threshold then
+				if db.profile.consider_all or forced or quality <= db.profile.threshold then
 					total_drop = total_drop + slot_values[bagslot]
 					table.insert(drop_slots, bagslot)
 				end
-				if (forced or quality <= db.profile.sell_threshold) and sellable then
+				if junk and (forced or quality <= db.profile.sell_threshold) and sellable then
 					total_sell = total_sell + slot_values[bagslot]
 					table.insert(sell_slots, bagslot)
 				end
@@ -291,30 +296,28 @@ function GetConsideredItemInfo(bag, slot)
 
 	local itemid = link_to_id(link)
 
-	-- We outright shouldn't be trying to drop quest items
-	if item_quest[itemid] then
-		return
-	end
-
+	-- A manual veto always wins. Inclusive recommendations do not classify an
+	-- item as junk: run the original rules separately for selling and bag icons.
+	if db.profile.never_consider[itemid] or never_consider[itemid] then return end
+	local inclusive = db.profile.consider_all
+	local junk = not item_quest[itemid]
 	local action
-	for _, filter in ipairs(filters) do
-		action = filter(bag, slot, itemid, quality, max(ilvl, reqLevel), class, subclass)
-		if action == false then
-			return
-		end
-		if action == true then
-			break
+	if junk then
+		for _, filter in ipairs(filters) do
+			action = filter(bag, slot, itemid, quality, max(ilvl, reqLevel), class, subclass)
+			if action == false then junk = false; break end
+			if action == true then break end
 		end
 	end
+	if not junk and not inclusive then return end
 
 	local value, source, sellable = item_value(link, quality < db.profile.auction_threshold or slot_soulbound[encode_bagslot(bag, slot)])
 	if (not value) or value == 0 then
-		if db.profile.valueless or action then
-			-- forced things should _always_ go through, otherwise it depends on the valueless setting
-			value = 0
-		else
-			return
+		if not (db.profile.valueless or action == true) then
+			junk = false
+			if not inclusive then return end
 		end
+		value = 0
 	end
 
 	local info = C_Container.GetContainerItemInfo(bag, slot)
@@ -323,7 +326,7 @@ function GetConsideredItemInfo(bag, slot)
 	end
 
 	local _, count = GetContainerItemInfo(bag, slot)
-	return itemid, link, count, stacksize, quality, value, source, action, sellable
+	return itemid, link, count, stacksize, quality, value, source, action, sellable, junk
 end
 
 do

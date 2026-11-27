@@ -28,7 +28,7 @@ f:RegisterAddonHook("Baganator", function()
 	Baganator.API.RegisterJunkPlugin(myname, myname, function(bagID, slotID, itemID, itemLink)
 		if not core.db.profile.mark_in_bags then return false end
 		local bagslot = core.encode_bagslot(bagID, slotID)
-		return core.slot_contents[bagslot] and true or false
+		return core.slot_junk[bagslot] and true or false
 	end)
 	core.RegisterCallback("Baganator", "Junk_Update", function()
 		Baganator.API.RequestItemButtonsRefresh()
@@ -54,7 +54,7 @@ f:RegisterAddonHook("Bagnon", function()
 				return
 			end
 			local bagslot = core.encode_bagslot(bag, slot)
-			if core.slot_contents[bagslot] and core.db.profile.mark_in_bags then
+			if core.slot_junk[bagslot] and core.db.profile.mark_in_bags then
 				self.IconGlow:SetVertexColor(r, g, b, 0.5)
 				self.IconGlow:SetShown(r)
 				self.JunkIcon:Show()
@@ -74,7 +74,7 @@ do
 	local coins = setmetatable({}, {__mode = "k"})
 
 	local function mark(button, bag, slot)
-		local junk = core.db.profile.mark_in_bags and core.slot_contents[core.encode_bagslot(bag, slot)] ~= nil
+		local junk = core.db.profile.mark_in_bags and core.slot_junk[core.encode_bagslot(bag, slot)] ~= nil
 		local coin = coins[button]
 		if not coin then
 			if not junk then return end

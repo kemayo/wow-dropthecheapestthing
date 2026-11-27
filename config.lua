@@ -129,9 +129,16 @@ function module:OnInitialize()
 				name = "What to drop",
 				order = 15,
 				args = {
+					consider_all = {
+						type = "toggle",
+						name = "Consider all items for dropping",
+						desc = "Rank items with loaded data for manual dropping, including food, equipment, quest items and zero-value items. Never Consider and built-in protected items stay excluded. Automatic selling and bag junk icons continue to use the rules below.",
+						order = 5,
+					},
 					threshold = {
 						type = "range",
 						name = "Quality Threshold (Drop)",
+						disabled = function() return db.profile.consider_all end,
 						desc = "Choose the maximum quality of item that will be considered for dropping. 0 is grey, 1 is white, 2 is green, etc.",
 						min = 0, max = 7, step = 1,
 						order = 10,
